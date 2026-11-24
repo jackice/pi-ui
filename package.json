@@ -36,7 +36,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "gallery": "tsx examples/gallery.ts",
-    "bench": "tsx scripts/bench.ts"
+    "bench": "tsx scripts/bench.ts",
+    "bench:startup": "node scripts/startup-bench.mjs"
   },
   "peerDependencies": {
     "@earendil-works/pi-tui": "^1.6.0"

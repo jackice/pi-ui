@@ -28,7 +28,7 @@
 | G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表/claim/status update、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：/tree UI 本身、切换期间排队写入 |
 | P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 非阻断残余 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
-| P5-03 Performance | 部分完成 | `pnpm bench`、`docs/performance.md` | 100 行目标通过；冷启动/RSS/A-B 未测 |
+| P5-03 Performance | 部分完成 | `pnpm bench`、`pnpm bench:startup`、`docs/performance.md` | 100 行目标、导入 +2.76ms/+1.1MiB 通过；完整 TUI 冷启动/heap 未测 |
 | G5 | 未通过 | P5 部分、G4 阻断 | 不发布 v1.0 |
 | P4 | 阻断 | G0-Approval | 未实现 ApprovalView 接线；保留现有 Gate |
 
