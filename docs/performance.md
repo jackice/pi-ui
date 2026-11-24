@@ -135,7 +135,20 @@ Pi 1.6.0、Node v25.9.0、macOS 26.7.2 arm64；复用上述 1000 条结果 fixtu
 
 EditView 第 60–120 轮 GC 前长会话 RSS 维持在约 690–692 MiB；从首轮到末轮，两组 GC 后长会话存活堆均增加不到 2 MiB。该轮未见 EditView 特有的线性存活堆增长，不能排除更慢的增长。
 
-另起 10 轮对照，在切回短会话并强制 GC 后采集 `vmmap -summary`。`MALLOC_SMALL`（含 empty 区域）常驻页为默认渲染约 35.3 MiB、EditView 约 118.3 MiB；默认 malloc zone 的已分配字节为 14.0 / 19.2 MiB。该次采样中，当前物理 footprint 为 90.8 / 91.9 MiB，而峰值为 306.7 / 418.7 MiB。常驻页与存活分配量不能等同；现有证据定位到分配器区域，尚未定位具体分配栈。
+另起 10 轮对照，在切回短会话并强制 GC 后采集 `vmmap -summary`。`MALLOC_SMALL`（含 empty 区域）常驻页为默认渲染约 35.3 MiB、EditView 约 118.3 MiB；默认 malloc zone 的已分配字节为 14.0 / 19.2 MiB。该次采样中，当前物理 footprint 为 90.8 / 91.9 MiB，而峰值为 306.7 / 418.7 MiB。常驻页与存活分配量不能等同；该次采样只定位到区域，不提供分配调用栈。
+
+### 缩放与切换的分配热点
+
+沿用 1000 条结果的真实 Pi TUI fixture。先预热，再分别采样 24 次只缩放（不重载会话）和 6 轮短/长会话切换（不缩放）；V8 `HeapProfiler.startSampling` 间隔 16 KiB，包含已被 GC 回收的对象。表中的 MiB 是整个测量窗口的累计分配估计，不是活跃堆、峰值内存或 RSS。
+
+| 场景 | 默认文本 | EditView（优化前） | EditView（跳过无 Tab 行重建） |
+|---|---:|---:|---:|
+| 24 次缩放 | 460.8 MiB | 2876.7–2888.9 MiB | 2272.1 MiB |
+| 6 轮会话切换 | 380.1 MiB | 1014.2–1017.1 MiB | 857.4 MiB |
+
+- 缩放期间 EditView 渲染 25000 次，没有重建模型；切换期间则创建了 18018 个视图。在最初的采样里，缩放分配热点包括终端截断 `truncateToWidth`（683.9 MiB，其中 `pad` 调用链占 357.7 MiB）和 `expandTabs`（595.8 MiB）。因此会话解析不是主要缩放成本。
+- 独立的原生采样用 `MallocStackLogging=full` 和 `malloc_history -allBySize -highWaterMark`，覆盖启动及 2 次缩放。按 V8/ICU 分段栈归类，默认文本约 0.02 MiB、EditView 约 119.21 MiB，说明原生分段参与了高水位；包含启动和插桩开销，不能把该值直接视为上节的 RSS 差值。
+- 在相同构建布局中，仅跳过简单行号栏的等宽截断，缩放累计分配仍为 2892.3 MiB，本轮未采用。仅让 `expandTabs` 在无 Tab 时返回原串，生产构建的缩放累计分配比两次基线均值低 21.2%。48 组含 Tab、ANSI、中文、emoji 和窄列的对照输出逐字节一致。终端截断仍是主要候选热点；本节未关闭采样器重测时延或峰值 RSS。
 
 ## Session TODO：HUD、工具上下文与资源生命周期
 

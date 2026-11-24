@@ -199,6 +199,7 @@ function renderContent(text: string, indentGuides: boolean, tabWidth: number): s
 }
 
 function expandTabs(text: string, tabWidth: number): string {
+  if (!text.includes("\t")) return text;
   let out = "";
   let column = 0;
   for (const char of text) {
