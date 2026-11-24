@@ -35,6 +35,11 @@ describe("sanitize", () => {
     expect(sanitizeText("a\nb")).toBe("a\nb");
   });
 
+  it("removes bidi and zero-width formatting characters", () => {
+    const cleaned = sanitizeLine("safe\u202E/evil\u200B\u2066x\u2069");
+    expect(cleaned).toBe("safe/evilx");
+  });
+
   it("removes DCS and C1 DCS payloads", () => {
     const dcs = sanitizeLine("a\x1bP1;2|payload\x1b\\b");
     expect(dcs).toBe("ab");

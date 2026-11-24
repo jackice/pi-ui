@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- `sanitizeText` 移除 bidi/零宽格式字符，防止审批命令视觉重排
+- `ApprovalView` 支持 `tui.select.pageUp/pageDown`，并对非有限 `maxCommandLines` 兜底
+- 测试增至 13 个文件 / 74 个用例
+
 ## 0.4.0
 
 - 新增 `ApprovalView`：完整命令/cwd/reason/风险、Allow once/Deny、命令滚动、arm 提示
