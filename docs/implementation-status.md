@@ -20,17 +20,20 @@
 | P2-02 CodeFrame | 完成 | `src/components/code-frame.ts` | 双侧行号、wrapping、缩进、折叠/截断提示 |
 | P2-03 EditView | 完成 | `src/views/edit.ts` | 多文件、partial/error/not_written、stats |
 | P2-04 Pi 集成探针 | 完成 | 真实 Pi TUI + 打包 0.2.0 | resolver 仅接管 `hashline`，`renderShell: "self"` |
-| G2 | 部分通过 | 上述探针 + 49 个单测 | 尚缺可安装 Hashline 版本、A/B provider 请求等价、40-240 列真实截图矩阵 |
-| P3 | 待启动 | G0-Todo 通过、G1 通过 | 下一步实现 session_todo store、TreeList/TodoView 与 HUD |
+| P3-03 TreeList / TodoView | 完成 | `src/components/tree-list.ts`、`src/views/todo.ts`、60 个测试 | 纯展示；默认 4 阶段/5 任务，活跃任务优先 |
+| P3-01/P3-02 Store / Tool | 未开始 | — | `session_todo`、appendEntry snapshot、revision、分支水合 |
+| P3-04 Widget 集成 | 未开始 | — | `setWidget` + `TodoView` + 高度上限 `clamp(rows-9,1,5)` |
+| G2 | 部分通过 | 上述探针 + 60 个单测 | 尚缺可安装 Hashline 版本、A/B provider 请求等价、40-240 列真实截图矩阵 |
+| P3 | 进行中 | G0-Todo 通过、TreeList/TodoView 完成 | 剩余 store/tool/widget |
 | P4 | 阻断 | G0-Approval | 未冻结接口前不实现 ApprovalView |
 
 ## 验证记录
 
 | 命令 | 结果 |
 |---|---|
-| `pnpm test` | 9 个测试文件，49 个测试通过 |
+| `pnpm test` | 11 个测试文件，60 个测试通过 |
 | `pnpm typecheck` | 通过 |
-| `pnpm build` | 生成 `dist/`，含 `./diff` 与 `./views/edit` 子路径 |
+| `pnpm build` | 生成 `dist/`，含 `./diff`、`./views/edit`、`./views/todo` 子路径 |
 | `pnpm gallery` | 离线渲染 Edit/partial/Panel/StatusLine，40/80/120/240 列 |
 | `pnpm pack` + 真实 Pi TUI | Edit 面板显示 `success · 3ms`、`+1 -1`、`- world`、`+ patched`；文件已写入 |
 | Hashline `bun test` | 14 个文件 / 285 个测试通过 |

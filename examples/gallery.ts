@@ -5,8 +5,10 @@ import {
   Panel,
   plainTheme,
   StatusLine,
+  TodoView,
   type EditViewModel,
   type Renderable,
+  type TodoViewModel,
   type Tone,
   type UiTheme,
 } from "../src/index.ts";
@@ -108,12 +110,44 @@ const partialModel: EditViewModel = {
   ],
 };
 
-const todoBody = text([
-  theme.fg("accent", "▾ Phase 1 · UI Foundation"),
-  theme.fg("success", "  ✓ Panel 与 StatusLine"),
-  theme.fg("warning", "  ▸ CodeFrame（P2 门禁未开）"),
-  theme.fg("muted", "  ○ TreeList（P3 门禁未开）"),
-]);
+const todoModel: TodoViewModel = {
+  mode: "serial",
+  currentTaskId: "t2",
+  phases: [
+    {
+      id: "p1",
+      name: "Phase 1 · UI Foundation",
+      tasks: [
+        { id: "t1", content: "Panel 与 StatusLine", status: "completed" },
+        { id: "t2", content: "CodeFrame 与 EditView", status: "in_progress" },
+        { id: "t3", content: "TreeList 与 TodoView", status: "pending" },
+        { id: "t4", content: "旧方案：原生 diff 预览", status: "abandoned" },
+        { id: "t5", content: "性能预算", status: "pending" },
+        { id: "t6", content: "真实 Pi 截图矩阵", status: "pending" },
+      ],
+    },
+    {
+      id: "p2",
+      name: "Phase 2 · Approval",
+      tasks: [{ id: "t7", content: "FIFO 与最终参数绑定", status: "pending" }],
+    },
+    {
+      id: "p3",
+      name: "Phase 3 · Performance",
+      tasks: [{ id: "t8", content: "100 行 diff P95", status: "pending" }],
+    },
+    {
+      id: "p4",
+      name: "Phase 4 · Release",
+      tasks: [{ id: "t9", content: "Gallery 与 changelog", status: "pending" }],
+    },
+    {
+      id: "p5",
+      name: "Phase 5 · Post-release",
+      tasks: [{ id: "t10", content: "后续需求", status: "pending" }],
+    },
+  ],
+};
 
 const approvalBody = text([
   theme.fg("muted", "cwd  /Users/jackice/dev/src/github.com/jackice/pi-ui"),
@@ -131,13 +165,7 @@ function gallery(width: number): void {
   const partial = new EditView(theme, { model: partialModel, expanded: true });
   show("Edit partial fixture", partial.render(width), width);
 
-  const todo = new Panel(theme, {
-    title: "Session TODO",
-    titleRight: "2/4",
-    border: "rounded",
-    paddingX: 1,
-    children: [todoBody],
-  });
+  const todo = new TodoView(theme, { model: todoModel, maxLines: 14 });
   show("TODO HUD fixture", todo.render(width), width);
 
   const approval = new Panel(theme, {

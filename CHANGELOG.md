@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- 新增 `TreeList`：通用节点、递归连接线、折叠、ASCII fallback、行数上限
+- 新增 `TodoView`：阶段进度、当前任务高亮、完成/放弃标记、后续阶段折叠、任务优先级与隐藏计数
+- 新增 `./views/todo` 子路径导出
+- Gallery 接入 TodoView；测试增至 11 个文件 / 60 个用例
+- G0-Todo 探针关闭：reload/new/fork/switch/navigateTree/shutdown、persistence、EACCES、共存、高度上限
+
 ## 0.2.0
 
 - 新增 `src/diff`：Hashline `details` version 1 适配为 `EditViewModel`，未知版本/损坏结构回退
