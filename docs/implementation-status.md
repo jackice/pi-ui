@@ -7,11 +7,11 @@
 | P0-01 环境与源码锁定 | 完成 | `docs/compatibility.md` §1-4 | Bun 全局锁文件记录 1.5.2，磁盘实际 1.6.0 |
 | P0-02 Edit 探针 | 完成 | 真实 Pi TUI/JSON：details=1、resolver 接管、执行保留、原生 edit 不变 | 本地 Hashline source |
 | P0-02 TODO 探针 | 完成 | 真实 TUI：widget 生命周期、落盘、reload/fork/new/switch/navigate/shutdown、EACCES、共存、高度上限 | `/tree` UI 与取消路径留 P3 |
-| P0-02 Approval 探针 | 完成（阻断） | `docs/approval-findings.md`：custom<T> 行为、reload 不结算、tool_call 参数漂移 | 需替换执行边界或阻断 P4 |
+| P0-02 Approval 探针 | 完成 | `docs/approval-findings.md`；新 `pi-approval-gate` 通过 TUI deny/allow/timeout/headless + 最终指纹 | RPC/子代理仍默认拒绝 |
 | G0-Base | 通过 | 打包产物在真实 Pi 1.6.0 中加载：`loaded rows=3 status=1 first=32` | 公开 TUI/Theme 契约已记录 |
 | G0-Edit | 通过 | `docs/compatibility.md` §2.2-2.3、§3 | 本地 source 交付 `details` v1；安装版 0.1.1 仍需升级 |
 | G0-Todo | 通过 | `docs/compatibility.md` §4.2 | HUD、持久化、分支替换、reload、共存、高度上限 |
-| G0-Approval | 阻断 | `docs/approval-findings.md` | tool_call 最终参数漂移；reload 不结算 custom Promise |
+| G0-Approval | 通过（替换执行边界） | `pi-approval-gate`：execute 审批 + spawnHook 指纹；TUI deny/allow/timeout、headless 拒绝 | RPC/子代理未接入可信通道 |
 | P1-01 Component 契约 | 完成 | `src/core/layout.ts` | 复用 `@earendil-works/pi-tui` 公开契约 |
 | P1-02 Theme / Layout | 完成 | `src/core/{theme,ansi,layout}.ts` | tone 映射、DCS/OSC/CSI 清理、宽度工具 |
 | P1-03 Panel / StatusLine | 完成 | `src/components/*`、`examples/gallery.ts` | 标题嵌入边框、路径中间省略、窄宽降级 |
@@ -27,18 +27,23 @@
 | G2 | 通过（核心验收） | A/B/C；40-240 宽度；折叠；partial/not_written/stale/REM/MV；旧 Session；主题；noop/中文长行；cancel（signal + landed/not_written）；`docs/g2-regression.md` | create 由 Hashline 设计为不支持；真实 Ctrl+C 截图未捕获 |
 | G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表/claim/status update、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：/tree UI 本身、切换期间排队写入 |
 | P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 非阻断残余 |
+| P4-01 Gate / 绑定 | 完成 | `pi-approval-gate`：execute 审批、FIFO、timeout、abort、spawnHook 指纹 | 支持默认 CLI bash |
+| P4-02 ApprovalView | 完成 | `src/views/approval.ts` + 6 个测试 | 完整命令/滚动/Deny 默认/arm |
+| P4-03 宿主 / 并发 | 完成（主路径） | 单对话框、16 上限、session_shutdown 取消 | RPC/子代理默认拒绝 |
+| P4-04 安全测试 | 部分完成 | deny/allow/timeout/headless/指纹/队列测试 | 缺 RPC、子代理与独立安全 Reviewer |
+| G4 | 部分通过 | 主 Session TUI bash + headless 降级 + 最终绑定通过 | RPC/子代理/安全 Reviewer 未完成 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
 | P5-03 Performance | 部分完成 | `pnpm bench`、`pnpm bench:startup`、`docs/performance.md` | 100 行目标、导入 +2.76ms/+1.1MiB 通过；完整 TUI 冷启动/heap 未测 |
-| G5 | 未通过 | P5 部分、G4 阻断 | 不发布 v1.0 |
-| P4 | 阻断 | G0-Approval | 未实现 ApprovalView 接线；保留现有 Gate |
+| G5 | 未通过 | P5 部分、G4 部分 | 不发布 v1.0 |
+| P4 | 完成（支持入口） | G0-Approval 通过、ApprovalView/Gate 主路径 | 剩余 RPC/子代理/Reviewer |
 
 ## 验证记录
 
 | 命令 | 结果 |
 |---|---|
-| `pnpm test` | 11 个测试文件，60 个测试通过 |
+| `pnpm test` | 13 个测试文件，72 个测试通过 |
 | `pnpm typecheck` | 通过 |
-| `pnpm build` | 生成 `dist/`，含 `./diff`、`./views/edit`、`./views/todo` 子路径 |
+| `pnpm build` | 生成 `dist/`，含 `./diff`、`./views/edit`、`./views/todo`、`./views/approval` 子路径 |
 | `pnpm gallery` | 离线渲染 Edit/partial/Panel/StatusLine，40/80/120/240 列 |
 | `pnpm pack` + 真实 Pi TUI | Edit 面板显示 `success · 3ms`、`+1 -1`、`- world`、`+ patched`；文件已写入 |
 | Hashline `bun test` | 14 个文件 / 285 个测试通过 |
@@ -70,6 +75,12 @@
 | G2 noop | 无变化补丁显示 `noop` + `no changes`，无伪造 hunk |
 | G2 中文长行 | 40 列下 `↪` 续行，未越界 |
 | G2 cancel | pre-abort 不写盘；多文件首段落盘后 abort，landed/not_written 正确；details status `cancelled` |
+| G0-Approval deny | TUI Esc：命令未执行，target 保留 |
+| G0-Approval allow | 等待 arm 后 Enter：target 删除 |
+| G0-Approval timeout | 1000ms 超时：对话框关闭，命令未执行 |
+| G0-Approval headless | `-p`：危险命令默认拒绝，target 保留 |
+| G0-Approval binding | 一次性 command+cwd 指纹；改写命令/cwd 抛错 |
+| `pi-approval-gate` `pnpm test` | 3 个文件 / 12 个测试通过 |
 
 ## 阻塞与决策
 

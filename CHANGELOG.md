@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+- 新增 `ApprovalView`：完整命令/cwd/reason/风险、Allow once/Deny、命令滚动、arm 提示
+- 新增 `./views/approval` 子路径导出
+- 新增 6 个 ApprovalView 测试；真实 `pi-approval-gate` 使用该视图
+- 测试增至 13 个文件 / 72 个用例
+
 ## 0.3.0
 
 - 新增 `TreeList`：通用节点、递归连接线、折叠、ASCII fallback、行数上限

@@ -34,3 +34,11 @@ export {
   type TodoViewModel,
   type TodoViewProps,
 } from "./views/todo.js";
+export {
+  ApprovalView,
+  type ApprovalChoice,
+  type ApprovalKeybindings,
+  type ApprovalRequestView,
+  type ApprovalRisk,
+  type ApprovalViewProps,
+} from "./views/approval.js";

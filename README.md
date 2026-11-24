@@ -67,6 +67,7 @@ export default function (pi: ExtensionAPI) {
 | `EditView` | Panel + StatusLine + CodeFrame，多文件、partial/error/not_written、折叠与源截断提示 |
 | `TreeList` | 通用树节点、递归连接线、折叠、ASCII fallback、行数上限；无业务字段 |
 | `TodoView` | 阶段进度、当前任务高亮、完成/放弃标记、后续阶段折叠、活跃任务优先与隐藏计数 |
+| `ApprovalView` | 完整命令、cwd、reason、风险、Allow once/Deny、滚动、arm 提示 |
 | `joinSides` / `rule` / `fitLine` | 布局原语 |
 
 组件通过 `setProps` / `setTheme` 更新，随后调用 `invalidate()`；`invalidate()` 幂等。`render(width)` 同步、无 I/O，返回行不超过 `width`。

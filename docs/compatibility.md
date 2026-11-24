@@ -149,7 +149,7 @@
 | RPC 可信通道 | 未验证 | 默认拒绝，直到实测 |
 | 子代理审批通道 | 未验证 | 默认拒绝 |
 
-结论：现有 `tool_call` Gate 无法证明授权绑定最终执行参数；G0-Approval 阻断。P4 不发布，保留现有 Gate。安全设计见 `docs/approval-findings.md`。
+结论：现有 `tool_call` Gate 无法证明授权绑定最终执行参数；已新增独立 `pi-approval-gate`，用 `registerTool` 替换 `bash` 执行边界并在 `spawnHook` 消费一次性 command+cwd 指纹。支持的 TUI bash 入口通过；RPC/子代理仍默认拒绝。G0-Approval 按新入口通过，见 `docs/approval-findings.md`。
 
 ## 5. 接入选择（P0-03）
 
@@ -158,7 +158,7 @@
 | Edit renderer | 独立 resolver，仅接管 `hashline` | `renderShell: "self"` 与 resolver 均为 1.6.0 公开 API |
 | Edit 数据 | Hashline `details` v1；旧结果回退原始 renderer | 本地 source 已交付并通过真实 Pi 探针；安装版 0.1.1 仍需升级 |
 | HUD | `setWidget` component factory，`aboveEditor` | 1.6.0 已验证签名 |
-| Approval | `custom<T>` + Guardrails 最终参数绑定 | 绑定与取消尚未验证，暂不发布 |
+| Approval | 独立 `pi-approval-gate` 替换 bash；审批在 execute，spawnHook 校验最终指纹 | `tool_call` 无法证明最终绑定；替换执行边界已验证 |
 
 ## 6. 门禁状态
 
@@ -167,7 +167,7 @@
 | G0-Base | 通过 | 版本、公开契约、包入口、工具链已锁定；`pnpm test` / `pnpm typecheck` / `pnpm build` 可复现；打包产物已在真实 Pi 1.6.0 中加载 |
 | G0-Edit | 通过 | 真实 Pi 1.6.0 探针：resolver 接管、details v1、执行保留、原生 `edit` 不变；本地 Hashline source 提供 v1 |
 | G0-Todo | 通过 | HUD/落盘/no-session/reload/fork/new/switch/navigate/shutdown/写入失败/共存/高度上限已实测；`/tree` UI 与取消路径留 P3 补测 |
-| G0-Approval | 阻断 | `tool_call` 无法绑定最终参数；`custom()` reload 不结算；详见 `docs/approval-findings.md` |
+| G0-Approval | 通过（替换执行边界） | `pi-approval-gate`：TUI deny/allow/timeout、headless 拒绝、最终指纹校验 | RPC/子代理仍默认拒绝，未接入可信通道 |
 
 未验证项不得在 P2/P3/P4 中表述为通过。
 

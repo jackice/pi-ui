@@ -48,18 +48,29 @@
 - headless：同 print，默认拒绝。
 - 子代理：未验证 runtime 通道；默认拒绝。
 
-## 4. 可选的安全设计（未实施）
+## 4. 已实施的安全设计：`pi-approval-gate`
 
-要让 bash 审批绑定最终参数，需要把审批放到执行边界，而不是 `tool_call`：
+1. 用 `registerTool` 替换 `bash`，`execute` 中 await 审批，再调用基础执行器。
+2. 基础执行器设置 `spawnHook`，消费一次性 `command + cwd` 指纹；不匹配则抛错，副作用前失败。
+3. Gate 自己维护等待者：超时、abort、session shutdown 走同一幂等取消路径，不依赖 `custom()` Promise。
+4. 仅支持默认 CLI bash；嵌入式 SDK 的自定义 `commandPrefix`/`spawnHook` 不在支持范围。
+5. 安全命令直接透传；危险命令默认 Deny，RPC/headless/子代理默认拒绝。
 
-1. 替换 `bash` 工具定义（`createBashToolDefinition`），在 `execute` 中 await 审批，再调用基础执行器。
-2. 基础执行器设置 `spawnHook`，用一次性指纹校验 `spawnCtx.command` / `spawnCtx.cwd`；不匹配则抛错，保证副作用前消费批准。
-3. Gate 自己维护等待者：超时、abort、session shutdown、reload 都走同一幂等取消路径；不依赖 `custom()` Promise。
-4. 仅支持默认 CLI bash（无自定义 `commandPrefix`/`spawnHook`）；嵌入式或自定义执行配置不纳入审批支持。
-5. 替换 bash 会改变工具注册与执行语义，需要单独评审；在完成前 P4 不发布。
+### 验证
+
+| 场景 | 结果 |
+|---|---|
+| TUI Deny / Esc | 命令未执行，target 保留 |
+| TUI Allow once | arm 后执行，target 删除 |
+| 1000ms 超时 | 对话框关闭，命令未执行 |
+| headless `-p` | 默认拒绝，target 保留 |
+| 最终指纹 | 精确 command/cwd 消费一次；改写抛错 |
+| 安全命令 | 无需审批 |
+| 队列/abort/shutdown | 单测覆盖，settle 幂等 |
 
 ## 5. 发布结论
 
-- G0-Approval 阻断。
-- 保留现有 `permission-gate.ts` 行为：TUI `select`、非 UI 默认 block。
-- 不实现/发布 `ApprovalView` 接线，不把 `custom<T>` 美化审批接入真实 bash。
+- 现有 `tool_call` Gate 仍不安全，保持原行为。
+- 新 `pi-approval-gate` 在支持的 TUI bash 入口通过 G0-Approval。
+- RPC/子代理无可信通道时默认拒绝；独立安全 Reviewer 尚未执行。
+- G4 标记为部分通过。

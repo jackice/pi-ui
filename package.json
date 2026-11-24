@@ -1,7 +1,7 @@
 {
   "name": "@jackice/pi-ui",
-  "version": "0.3.0",
-  "description": "Terminal UI components for Pi extensions: theme mapping, ANSI-safe layout, panels, status lines, diff frames, Edit view, TreeList, and Session TODO view.",
+  "version": "0.4.0",
+  "description": "Terminal UI components for Pi extensions: theme mapping, ANSI-safe layout, panels, status lines, diff frames, Edit/TODO/Approval views.",
   "type": "module",
   "license": "MIT",
   "author": "jackice",
@@ -23,6 +23,10 @@
     "./views/todo": {
       "types": "./dist/views/todo.d.ts",
       "import": "./dist/views/todo.js"
+    },
+    "./views/approval": {
+      "types": "./dist/views/approval.d.ts",
+      "import": "./dist/views/approval.js"
     }
   },
   "files": [
