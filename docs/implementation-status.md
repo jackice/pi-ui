@@ -7,11 +7,11 @@
 | P0-01 环境与源码锁定 | 完成 | `docs/compatibility.md` §1-4 | Bun 全局锁文件记录 1.5.2，磁盘实际 1.6.0 |
 | P0-02 Edit 探针 | 完成 | 真实 Pi TUI/JSON：details=1、resolver 接管、执行保留、原生 edit 不变 | 本地 Hashline source |
 | P0-02 TODO 探针 | 完成 | 真实 TUI：widget 生命周期、落盘、reload/fork/new/switch/navigate/shutdown、EACCES、共存、高度上限 | `/tree` UI 与取消路径留 P3 |
-| P0-02 Approval 探针 | 完成 | `docs/approval-findings.md`；新 `pi-approval-gate` 通过 TUI deny/allow/timeout/headless + 最终指纹 | RPC/子代理仍默认拒绝 |
+| P0-02 Approval 探针 | 完成 | TUI deny/allow/timeout、RPC/headless/子代理默认拒绝、最终指纹 | 可信外部审批通道尚未接入 |
 | G0-Base | 通过 | 打包产物在真实 Pi 1.6.0 中加载：`loaded rows=3 status=1 first=32` | 公开 TUI/Theme 契约已记录 |
 | G0-Edit | 通过 | `docs/compatibility.md` §2.2-2.3、§3 | 本地 source 交付 `details` v1；安装版 0.1.1 仍需升级 |
 | G0-Todo | 通过 | `docs/compatibility.md` §4.2 | HUD、持久化、分支替换、reload、共存、高度上限 |
-| G0-Approval | 通过（替换执行边界） | `pi-approval-gate`：execute 审批 + spawnHook 指纹；TUI deny/allow/timeout、headless 拒绝 | RPC/子代理未接入可信通道 |
+| G0-Approval | 通过（替换执行边界） | `pi-approval-gate`：execute 审批 + spawnHook 指纹；TUI/RPC/headless/子代理默认拒绝已实测 | 可信外部审批通道未接入 |
 | P1-01 Component 契约 | 完成 | `src/core/layout.ts` | 复用 `@earendil-works/pi-tui` 公开契约 |
 | P1-02 Theme / Layout | 完成 | `src/core/{theme,ansi,layout}.ts` | tone 映射、DCS/OSC/CSI 清理、宽度工具 |
 | P1-03 Panel / StatusLine | 完成 | `src/components/*`、`examples/gallery.ts` | 标题嵌入边框、路径中间省略、窄宽降级 |
@@ -29,13 +29,13 @@
 | P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 非阻断残余 |
 | P4-01 Gate / 绑定 | 完成 | `pi-approval-gate`：execute 审批、FIFO、timeout、abort、spawnHook 指纹 | 支持默认 CLI bash |
 | P4-02 ApprovalView | 完成 | `src/views/approval.ts` + 6 个测试 | 完整命令/滚动/Deny 默认/arm |
-| P4-03 宿主 / 并发 | 完成（主路径） | 单对话框、16 上限、session_shutdown 取消 | RPC/子代理默认拒绝 |
-| P4-04 安全测试 | 部分完成 | deny/allow/timeout/headless/指纹/队列测试 | 缺 RPC、子代理与独立安全 Reviewer |
-| G4 | 部分通过 | 主 Session TUI bash + headless 降级 + 最终绑定通过 | RPC/子代理/安全 Reviewer 未完成 |
+| P4-03 宿主 / 并发 | 完成（主路径） | 单对话框、16 上限、session_shutdown 取消；RPC/子代理默认拒绝已实测 | 可信通道未接入 |
+| P4-04 安全测试 | 部分完成 | deny/allow/timeout/RPC/headless/子代理/指纹/队列测试 | 缺独立安全 Reviewer 与可信 RPC 审批 |
+| G4 | 部分通过 | 主 Session TUI bash、RPC/headless/子代理默认拒绝、最终绑定通过 | 安全 Reviewer / 可信通道未完成 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
 | P5-03 Performance | 完成（组件级） | `pnpm bench`、`bench:startup`、`bench:heap`、`bench:coldstart`、`docs/performance.md` | 100 行、+17ms 冷启动、+0.7MiB/1000 轮通过；TUI 会话级 RSS 未测 |
 | G5 | 未通过 | P5 部分、G4 部分 | 不发布 v1.0 |
-| P4 | 完成（支持入口） | G0-Approval 通过、ApprovalView/Gate 主路径 | 剩余 RPC/子代理/Reviewer |
+| P4 | 完成（支持入口） | G0-Approval 通过、ApprovalView/Gate 主路径 | 剩余安全 Reviewer 与可信 RPC 通道 |
 
 ## 验证记录
 
@@ -79,16 +79,18 @@
 | G0-Approval allow | 等待 arm 后 Enter：target 删除 |
 | G0-Approval timeout | 1000ms 超时：对话框关闭，命令未执行 |
 | G0-Approval headless | `-p`：危险命令默认拒绝，target 保留 |
+| G0-Approval RPC | `--mode rpc`：默认拒绝，事件返回 Blocked，target 保留 |
+| G0-Approval 子代理 | `PI_SUBAGENT_CHILD=1`：无对话框，target 保留 |
 | G0-Approval binding | 一次性 command+cwd 指纹；改写命令/cwd 抛错 |
 | `pi-approval-gate` `pnpm test` | 3 个文件 / 12 个测试通过 |
 
 ## 阻塞与决策
 
-1. G2 仍缺“可安装的 Hashline 兼容版本”：本地 source commit `2d152f7` 已提供 details v1，但 npm 安装版仍是 `0.1.1`。发布/升级后需重跑 A/B。
-2. G3 真机矩阵：已完成 init/start/done、自动隐藏、reload；仍缺 parallel/append/rm 真机、branch switch/cancel 与子代理所有权。
-3. G0-Approval：现有 `permission-gate.ts` 仅覆盖 `bash`，无最终参数绑定；P4 不得在未验证入口发布美化审批。
-4. 子代理模型代理 403，Phase 0 并行侦查改为主会话直接取证。
-5. 性能预算（P5）尚未测量；当前只验证了功能与宽度安全。
+1. G2/G3/G0-Approval 主路径已通过；Hashline 新版本仍为本地 tarball，npm 发布/安装版升级待处理。
+2. G3 残余：`/tree` UI 本身、切换期间排队写入；非阻断。
+3. G4 残余：独立安全 Reviewer、可信 RPC 审批通道；当前 RPC/子代理默认拒绝。
+4. P5 残余：真实 TUI 1000 结果 RSS、session switch/resize 与 hot render A/B。
+5. G5 未通过：需 G4 完成、P5 完整报告与最终发布检查。
 
 ## 复现
 
