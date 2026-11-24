@@ -84,11 +84,8 @@ export default function (pi: ExtensionAPI) {
 - 仅声明并验证 Pi `1.6.0`；未测试版本不声称兼容
 - Edit 视图消费 Hashline `details` version 1；已安装的 `@jackice/hashline@0.1.1` 仍返回空 `details`，需要升级到包含该契约的版本
 - 旧结果或未知 `details` 版本必须回退到原始文本 renderer；`adaptHashlineDetails` 返回 `undefined` 表示不可适配
-- `TodoView` 仅是无副作用的展示组件；`session_todo` 工具、store、`/session-todo` 与 widget 集成尚未实现
-- TODO HUD、Approval 视图仍依赖：
-  - `session_todo` 工具与 Session 持久化 store
-  - Guardrails 最终执行参数绑定与取消路径
-- 在上述门禁通过前，不提供对应公共导出
+- `TodoView` 仅是无副作用的展示组件；`session_todo` 工具、store、`/session-todo` 与 widget 集成位于独立仓库 `@jackice/pi-session-todo`
+- Approval 视图仍依赖 Guardrails 最终执行参数绑定与取消路径；通过门禁前不提供公共导出
 
 集成示例见 [`docs/integration.md`](docs/integration.md)。详见 [`docs/compatibility.md`](docs/compatibility.md) 与 [`docs/implementation-status.md`](docs/implementation-status.md)。
 

@@ -20,11 +20,13 @@
 | P2-02 CodeFrame | 完成 | `src/components/code-frame.ts` | 双侧行号、wrapping、缩进、折叠/截断提示 |
 | P2-03 EditView | 完成 | `src/views/edit.ts` | 多文件、partial/error/not_written、stats |
 | P2-04 Pi 集成探针 | 完成 | 真实 Pi TUI + 打包 0.2.0 | resolver 仅接管 `hashline`，`renderShell: "self"` |
+| P3-01 Store / Tool | 完成 | `pi-session-todo`：store/session/actions/tool，34 个测试 | 串行/并行、稳定 ID、revision CAS |
+| P3-02 Persistence | 完成 | `pi-session-todo`：version 1 snapshot、branch 水合、EACCES、损坏只读 | 先落盘再发布 |
 | P3-03 TreeList / TodoView | 完成 | `src/components/tree-list.ts`、`src/views/todo.ts`、60 个测试 | 纯展示；默认 4 阶段/5 任务，活跃任务优先 |
-| P3-01/P3-02 Store / Tool | 未开始 | — | `session_todo`、appendEntry snapshot、revision、分支水合 |
-| P3-04 Widget 集成 | 未开始 | — | `setWidget` + `TodoView` + 高度上限 `clamp(rows-9,1,5)` |
+| P3-04 Widget 集成 | 完成 | `pi-session-todo/src/widget.ts` + 真实 TUI | `aboveEditor`、高度预算、自动隐藏 |
 | G2 | 部分通过 | 上述探针 + 60 个单测 | 尚缺可安装 Hashline 版本、A/B provider 请求等价、40-240 列真实截图矩阵 |
-| P3 | 进行中 | G0-Todo 通过、TreeList/TodoView 完成 | 剩余 store/tool/widget |
+| G3 | 部分通过 | 真实 TUI：init/start/done、3/3、自动隐藏、reload 恢复；34 个测试 | 缺 parallel/append/rm 真机、branch switch/cancel、子代理所有权 |
+| P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 真机矩阵 |
 | P4 | 阻断 | G0-Approval | 未冻结接口前不实现 ApprovalView |
 
 ## 验证记录
@@ -43,11 +45,16 @@
 | Pi TUI session 探针 | new/fork/switch/reload 均触发 session_shutdown + widget_dispose + 新 session_start；新实例 generation 重置 |
 | Pi TUI rewind 探针 | navigateTree 触发 session_tree、label 落盘、被放弃分支 custom entry 不在新 branch |
 | Pi TUI 高度探针 | `clamp(rows-9,1,5)`：22/24 行下 footer 布局与基线一致；12 行限制为 3 行 |
+| `pi-session-todo` `pnpm test` | 5 个文件 / 34 个测试通过 |
+| `pi-session-todo` `pnpm typecheck` | 通过 |
+| `pi-session-todo` 真实 TUI | HUD empty → init/start/done 1/3，串行提升下个任务；3/3 后 4s 自动隐藏 |
+| `pi-session-todo` reload | 从 session custom entry 恢复 3/3 HUD |
+| `pi-session-todo` hide=-1 | `PI_SESSION_TODO_HIDE_MS=-1` 下 12s 后 HUD 仍显示 |
 
 ## 阻塞与决策
 
 1. G2 仍缺“可安装的 Hashline 兼容版本”：本地 source commit `2d152f7` 已提供 details v1，但 npm 安装版仍是 `0.1.1`。发布/升级后需重跑 A/B。
-2. G0-Todo：`session_todo` 工具尚未创建；项目级 `todo` 保持不变。
+2. G3 真机矩阵：已完成 init/start/done、自动隐藏、reload；仍缺 parallel/append/rm 真机、branch switch/cancel 与子代理所有权。
 3. G0-Approval：现有 `permission-gate.ts` 仅覆盖 `bash`，无最终参数绑定；P4 不得在未验证入口发布美化审批。
 4. 子代理模型代理 403，Phase 0 并行侦查改为主会话直接取证。
 5. 性能预算（P5）尚未测量；当前只验证了功能与宽度安全。
