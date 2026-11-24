@@ -24,7 +24,7 @@
 | P3-02 Persistence | 完成 | `pi-session-todo`：version 1 snapshot、branch 水合、EACCES、损坏只读 | 先落盘再发布 |
 | P3-03 TreeList / TodoView | 完成 | `src/components/tree-list.ts`、`src/views/todo.ts`、60 个测试 | 纯展示；默认 4 阶段/5 任务，活跃任务优先 |
 | P3-04 Widget 集成 | 完成 | `pi-session-todo/src/widget.ts` + 真实 TUI | `aboveEditor`、高度预算、自动隐藏 |
-| G2 | 部分通过 | 上述探针 + 60 个单测 | 尚缺可安装 Hashline 版本、A/B provider 请求等价、40-240 列真实截图矩阵 |
+| G2 | 部分通过（核心） | A/B/C 请求/文件/content/schema 一致；40-240 真机宽度；折叠/展开；`docs/g2-regression.md` | 残余：多文件部分写入真机、旧 Session 回放、create/delete/move 截图、主题切换 |
 | G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表+claim、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：项目 todo status update 真机、/tree UI、排队写入 |
 | P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 残余真机项 |
 | P4 | 阻断 | G0-Approval | 未实现 ApprovalView 接线；保留现有 Gate |
@@ -55,6 +55,9 @@
 | G3 branch | navigateTree 回退；`session-todo-branch` 标记使 switch 后保持回退状态 |
 | G3 隔离/取消 | new 空 HUD、切回恢复、仅一个 HUD；`session_before_switch` 取消后 Session/HUD 不变 |
 | G3 子代理 | `PI_SUBAGENT_CHILD=1` 写入拒绝，view 可用 |
+| G2 A/B/C | 新/旧 Hashline × UI 开关：文件、content、schema、provider 请求哈希一致；details 差异仅展示 |
+| G2 宽度 | 40/60/80/100/120/160/240 真机 TUI 均显示 Edit 面板与统计 |
+| G2 折叠 | `Ctrl+O` 展开 5 hunk；折叠提示消失，统计不变 |
 
 ## 阻塞与决策
 
