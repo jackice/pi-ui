@@ -120,9 +120,11 @@
 | reload | 通过 | `entries=3 branch=8`，恢复后 widget 重新挂载 |
 | fork | 通过 | `entries=4 branch=9`，fork 文件继承 custom entries |
 | 写入失败 | 显式报错 | 只读 session 文件：`append_error EACCES: permission denied`，TUI 显示 Error |
-| 切分支/rewind/tree、共存、高度预算 | 未测 | 剩余 P3 验收项 |
+| 与全局扩展共存 | 通过 | 同屏出现 TODO widget 与 powerline footer，无重复 widget |
+| 极矮终端高度 | 风险 | 12 行终端 + 6 行 widget 被裁剪到 5 行，编辑器输入区被挤出；P3 必须强制高度上限/窄高降级 |
+| 切分支/rewind/tree | 未测 | 剩余 P3 验收项 |
 
-结论：HUD 与持久化主路径可用；G0-Todo 标记为“部分通过”，P3 的切分支/rewind/tree、与 Goal/Subagent/Powerline 共存、极矮终端高度仍需在 P3 实现时补齐。
+结论：HUD 与持久化主路径可用；共存通过；高度预算需要 P3 处理。G0-Todo 标记为“部分通过”，切分支/rewind/tree 仍需在 P3 实现时补齐。
 
 ### 4.3 权限门禁（Approval）
 
@@ -153,7 +155,7 @@
 |---|---|---|
 | G0-Base | 通过 | 版本、公开契约、包入口、工具链已锁定；`pnpm test` / `pnpm typecheck` / `pnpm build` 可复现；打包产物已在真实 Pi 1.6.0 中加载 |
 | G0-Edit | 通过 | 真实 Pi 1.6.0 探针：resolver 接管、details v1、执行保留、原生 `edit` 不变；本地 Hashline source 提供 v1 |
-| G0-Todo | 部分通过 | HUD、落盘、no-session、reload、fork、写入失败已实测；切分支/rewind/tree、共存与高度预算未测 |
+| G0-Todo | 部分通过 | HUD、落盘、no-session、reload、fork、写入失败、共存已实测；切分支/rewind/tree 未测，极矮终端需 P3 高度上限 |
 | G0-Approval | 阻断 | 未跑最终参数绑定与取消探针；现有 Gate 无队列/超时 |
 
 未验证项不得在 P2/P3/P4 中表述为通过。

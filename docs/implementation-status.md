@@ -10,7 +10,7 @@
 | P0-02 Approval 探针 | 未开始 | — | 需要最终参数绑定与取消路径 |
 | G0-Base | 通过 | 打包产物在真实 Pi 1.6.0 中加载：`loaded rows=3 status=1 first=32` | 公开 TUI/Theme 契约已记录 |
 | G0-Edit | 通过 | `docs/compatibility.md` §2.2-2.3、§3 | 本地 source 交付 `details` v1；安装版 0.1.1 仍需升级 |
-| G0-Todo | 部分通过 | `docs/compatibility.md` §4.2 | 主路径可用；切分支/rewind/tree、共存与高度预算未测 |
+| G0-Todo | 部分通过 | `docs/compatibility.md` §4.2 | 共存通过；极矮终端需高度上限；切分支/rewind/tree 未测 |
 | G0-Approval | 阻断 | `docs/compatibility.md` §4.3 | 现有 Gate 无队列/超时/最终绑定 |
 | P1-01 Component 契约 | 完成 | `src/core/layout.ts` | 复用 `@earendil-works/pi-tui` 公开契约 |
 | P1-02 Theme / Layout | 完成 | `src/core/{theme,ansi,layout}.ts` | tone 映射、DCS/OSC/CSI 清理、宽度工具 |
@@ -35,8 +35,8 @@
 | `pnpm pack` + 真实 Pi TUI | Edit 面板显示 `success · 3ms`、`+1 -1`、`- world`、`+ patched`；文件已写入 |
 | Hashline `bun test` | 14 个文件 / 285 个测试通过 |
 | Hashline `tsc --noEmit` | 通过 |
-| Pi TUI TODO 探针 | widget aboveEditor、重绘、hide/dispose、reload、fork、EACCES 均符合预期 |
-| Pi TUI TODO 探针 | 首条消息前 session 目录为空；首条消息后 custom entry 落盘 |
+| Pi TUI TODO 探针 | widget aboveEditor、重绘、hide/dispose、reload、fork、EACCES、powerline 共存均符合预期 |
+| Pi TUI TODO 探针 | 首条消息前 session 目录为空；首条消息后 custom entry 落盘；12 行终端下 6 行 widget 挤压编辑器 |
 
 ## 阻塞与决策
 
