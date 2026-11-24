@@ -30,8 +30,8 @@
 | P4-01 Gate / 绑定 | 完成 | `pi-approval-gate`：execute 审批、FIFO、timeout、abort、spawnHook 指纹 | 支持默认 CLI bash |
 | P4-02 ApprovalView | 完成 | `src/views/approval.ts` + 6 个测试 | 完整命令/滚动/Deny 默认/arm |
 | P4-03 宿主 / 并发 | 完成（主路径） | 单对话框、16 上限、session_shutdown 取消；RPC/子代理默认拒绝已实测 | 可信通道未接入 |
-| P4-04 安全测试 | 部分完成 | deny/allow/timeout/RPC/headless/子代理/指纹/队列测试 | 缺独立安全 Reviewer 与可信 RPC 审批 |
-| G4 | 部分通过 | 主 Session TUI bash、RPC/headless/子代理默认拒绝、最终绑定通过 | 安全 Reviewer / 可信通道未完成 |
+| P4-04 安全测试 | 完成（评审修复） | 独立评审 Critical/High 已修复；policy 51 + gate 6 + binding 3 + dialog 4 | Low 残余：arm 倒计时、审计 entry、复审 |
+| G4 | 部分通过（待复审） | 安全评审 C1/H1/H2/H3/M1/M2/M3/M4/M5 修复并回归 | 独立复审、可信 RPC 通道未完成 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
 | P5-03 Performance | 完成（组件级） | `pnpm bench`、`bench:startup`、`bench:heap`、`bench:coldstart`、`docs/performance.md` | 100 行、+17ms 冷启动、+0.7MiB/1000 轮通过；TUI 会话级 RSS 未测 |
 | G5 | 未通过 | P5 部分、G4 部分 | 不发布 v1.0 |
@@ -41,7 +41,7 @@
 
 | 命令 | 结果 |
 |---|---|
-| `pnpm test` | 13 个测试文件，72 个测试通过 |
+| `pnpm test` | 13 个测试文件，74 个测试通过 |
 | `pnpm typecheck` | 通过 |
 | `pnpm build` | 生成 `dist/`，含 `./diff`、`./views/edit`、`./views/todo`、`./views/approval` 子路径 |
 | `pnpm gallery` | 离线渲染 Edit/partial/Panel/StatusLine，40/80/120/240 列 |
@@ -81,14 +81,22 @@
 | G0-Approval headless | `-p`：危险命令默认拒绝，target 保留 |
 | G0-Approval RPC | `--mode rpc`：默认拒绝，事件返回 Blocked，target 保留 |
 | G0-Approval 子代理 | `PI_SUBAGENT_CHILD=1`：无对话框，target 保留 |
+| Security C1/H1/H2 | `sh -c`/`eval`/`xargs`/引号拼接/`${IFS}`/`git -C push`/reset/clean/delete 等策略回归通过 |
+| Security H3 | fullscreen 20 行命令 PgDn 后可见 `rm -rf target` |
+| Security M2 | `shellCommandPrefix` 在安全命令执行中生效 |
+| Security M3 | `!rm -rf target` 审批 deny/allow 均验证 |
+| Security M5 | 重复 bash 注册宿主报 conflict，未静默旁路 |
+| Security M4 | bidi/零宽字符被 `sanitizeText` 移除 |
+| Security M1 | 5KB 构造输入判定 <50ms |
 | G0-Approval binding | 一次性 command+cwd 指纹；改写命令/cwd 抛错 |
-| `pi-approval-gate` `pnpm test` | 3 个文件 / 12 个测试通过 |
+| `pi-approval-gate` `pnpm test` | 4 个文件 / 64 个测试通过 |
+| `pi-approval-gate` 安全评审 | Critical/High 修复；Low 残余与复审待办 |
 
 ## 阻塞与决策
 
 1. G2/G3/G0-Approval 主路径已通过；Hashline 新版本仍为本地 tarball，npm 发布/安装版升级待处理。
 2. G3 残余：`/tree` UI 本身、切换期间排队写入；非阻断。
-3. G4 残余：独立安全 Reviewer、可信 RPC 审批通道；当前 RPC/子代理默认拒绝。
+3. G4 残余：独立安全复审、可信 RPC 审批通道；安全评审 Critical/High 已修复。
 4. P5 残余：真实 TUI 1000 结果 RSS、session switch/resize 与 hot render A/B。
 5. G5 未通过：需 G4 完成、P5 完整报告与最终发布检查。
 

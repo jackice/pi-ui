@@ -21,7 +21,8 @@ export function sanitizeLine(text: string): string {
 export function sanitizeText(text: string): string {
   const withoutDcs = stripTerminalSequences(text)
     .replace(/\x1bP[\s\S]*?(?:\x1b\\|\x07|$)/g, "")
-    .replace(/\x90[\s\S]*?(?:\x9c|\x07|$)/g, "");
+    .replace(/\x90[\s\S]*?(?:\x9c|\x07|$)/g, "")
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2060\u2066-\u2069\uFEFF]/g, "");
   return withoutDcs
     .split("\n")
     .map((line) => replaceControlCharacters(line))

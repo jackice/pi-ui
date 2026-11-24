@@ -73,12 +73,12 @@ export class ApprovalView implements Renderable {
     }
     if (keybindings.matches(data, "tui.select.confirm")) return this.selected;
     if (keybindings.matches(data, "tui.select.cancel")) return "deny";
-    if (matchesKey(data, Key.pageUp)) {
+    if (matchesKey(data, Key.pageUp) || keybindings.matches(data, "tui.select.pageUp")) {
       this.scroll = Math.max(0, this.scroll - this.visibleCommandLines());
       this.invalidate();
       return undefined;
     }
-    if (matchesKey(data, Key.pageDown)) {
+    if (matchesKey(data, Key.pageDown) || keybindings.matches(data, "tui.select.pageDown")) {
       this.scroll += this.visibleCommandLines();
       this.invalidate();
       return undefined;
@@ -140,7 +140,9 @@ export class ApprovalView implements Renderable {
   }
 
   private visibleCommandLines(): number {
-    return Math.max(1, Math.floor(this.props.maxCommandLines ?? DEFAULT_COMMAND_LINES));
+    const value = this.props.maxCommandLines;
+    if (value === undefined || !Number.isFinite(value) || value <= 0) return DEFAULT_COMMAND_LINES;
+    return Math.max(1, Math.floor(value));
   }
 }
 

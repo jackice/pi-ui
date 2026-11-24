@@ -19,7 +19,9 @@ const keybindings = {
       (binding === "tui.select.up" && data === "\x1b[A") ||
       (binding === "tui.select.down" && data === "\x1b[B") ||
       (binding === "tui.select.confirm" && data === "\r") ||
-      (binding === "tui.select.cancel" && data === "\x1b")
+      (binding === "tui.select.cancel" && data === "\x1b") ||
+      (binding === "tui.select.pageUp" && data === "PAGEUP") ||
+      (binding === "tui.select.pageDown" && data === "PAGEDOWN")
     );
   },
 };
@@ -67,6 +69,19 @@ describe("ApprovalView", () => {
     const second = text(view.render(50));
     expect(second).toContain("↑");
     expect(second).not.toBe(first);
+
+    view.handleInput("PAGEDOWN", keybindings);
+    expect(text(view.render(50))).not.toBe(second);
+  });
+
+  it("keeps the command visible for non-finite maxCommandLines", () => {
+    const output = text(
+      new ApprovalView(plainTheme(), {
+        request: { ...request, command: "SECRET-COMMAND" },
+        maxCommandLines: Number.NaN,
+      }).render(60),
+    );
+    expect(output).toContain("SECRET-COMMAND");
   });
 
   it("sanitizes control sequences", () => {
