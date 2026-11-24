@@ -1,22 +1,21 @@
 # @jackice/pi-ui
 
-Pi 扩展的终端 UI 组件库。提供主题适配、ANSI 安全宽度处理、`Panel` / `StatusLine` / `CodeFrame` / `TreeList`，以及 `EditView`、`TodoView` 和 `ApprovalView`。
+A terminal UI library for Pi extensions. It provides theme adapters, ANSI-aware layout, and components for panels, status lines, code diffs, trees, session tasks, and approval prompts.
 
-- 基线：Pi `1.6.0`、`@earendil-works/pi-tui` `1.6.0`、Node `>=22`
-- 发布范围：本包是独立 UI 预览，不包含工具注册、TODO 持久化或审批 Gate。
-- 不注册工具、不持久化业务数据、不读取工作区、不批准命令、不持有 AgentSession
+- Verified with Pi `1.6.0` and `@earendil-works/pi-tui` `1.6.0`. Requires Node `>=22`.
+- This preview includes UI components only. It does not register tools, persist tasks, access the workspace, retain an `AgentSession`, or authorize commands.
 
-## 安装
+## Installation
 
 ```bash
 pnpm add @jackice/pi-ui@next
 ```
 
-预览版通过 npm 的 `next` 标签分发，不使用 `latest`。
+Use the `next` dist-tag to opt in to preview releases.
 
-`@earendil-works/pi-tui` 为 peer dependency，由 Pi 宿主提供；库不会打包第二套 Pi runtime。
+`@earendil-works/pi-tui` is a peer dependency. The library uses the host's copy rather than bundling another Pi runtime.
 
-## 使用
+## Usage
 
 ```ts
 import { fromPiTheme, Panel } from "@jackice/pi-ui";
@@ -54,45 +53,45 @@ export default function (pi: ExtensionAPI) {
 
 ## API
 
-| 导出 | 说明 |
+| Export | Description |
 |---|---|
-| `UiTheme` / `Tone` | 语义 tone：`text` `muted` `accent` `success` `warning` `error` `border` `added` `removed` |
-| `fromPiTheme(theme)` | 映射 Pi `Theme.fg` / `bold`；`added→success`、`removed→error`；未知 token 降级为原文 |
-| `plainTheme()` | 无 ANSI 的确定性主题，供测试与 Gallery |
-| `displayWidth` | 终端显示列宽（CJK/emoji/组合字符/ANSI） |
-| `sanitizeLine` / `sanitizeText` | 移除 OSC/CSI/DCS 等控制序列与剩余控制字符 |
-| `truncate` / `pad` / `wrap` / `middleTruncate` | 宽度安全文本处理；`pad` 为硬截断 |
-| `Panel` | 标题嵌入边框、左右标题、圆角/方角/无边框、X/Y padding、按宽度缓存 |
-| `StatusLine` | 图标、标题、路径中间省略、右侧元数据；窄宽优先保留 meta |
-| `CodeFrame` | 双侧行号、+/- marker、上下文/新增/删除着色、Tab 箭头、悬挂缩进、折叠提示 |
-| `adaptHashlineDetails(details)` | 将 Hashline `details` version 1 适配为 `EditViewModel`；未知版本返回 `undefined` |
-| `EditView` | Panel + StatusLine + CodeFrame，多文件、partial/error/not_written、折叠与源截断提示 |
-| `TreeList` | 通用树节点、递归连接线、折叠、ASCII fallback、行数上限；无业务字段 |
-| `TodoView` | 阶段进度、当前任务高亮、完成/放弃标记、后续阶段折叠、活跃任务优先与隐藏计数 |
-| `ApprovalView` | 完整命令、cwd、reason、风险、Allow once/Deny、滚动、arm 提示 |
-| `joinSides` / `rule` / `fitLine` | 布局原语 |
+| `UiTheme` / `Tone` | Semantic tones: `text`, `muted`, `accent`, `success`, `warning`, `error`, `border`, `added`, and `removed`. |
+| `fromPiTheme(theme)` | Adapts Pi's `Theme.fg` and `bold`, mapping `added` to `success` and `removed` to `error`. Falls back to unstyled text for unsupported tokens. |
+| `plainTheme()` | Deterministic, ANSI-free theme for tests and the gallery. |
+| `displayWidth` | Measures terminal columns, accounting for CJK text, emoji, combining marks, and ANSI sequences. |
+| `sanitizeLine` / `sanitizeText` | Strip terminal control sequences and remaining control characters. |
+| `truncate` / `pad` / `wrap` / `middleTruncate` | Column-aware text helpers. `pad` hard-truncates text that does not fit. |
+| `Panel` | Left and right titles, rounded or square borders, a borderless mode, horizontal and vertical padding, and width-based caching. |
+| `StatusLine` | Icon, title, middle-truncated path, and right-aligned metadata. Prioritizes metadata at narrow widths. |
+| `CodeFrame` | Old and new line numbers, diff markers and colors, visible tabs, hanging indents, and folding notices. |
+| `adaptHashlineDetails(details)` | Converts Hashline `details` version 1 to an `EditViewModel`. Returns `undefined` for unsupported versions. |
+| `EditView` | Multi-file diffs and partial, failed, or unwritten edit results, with folding and source truncation notices. |
+| `TreeList` | Generic tree with connector lines, collapsible branches, an ASCII fallback, and a row limit. |
+| `TodoView` | Phase progress, active task highlighting, completed and abandoned markers, collapsed future phases, and hidden task counts. |
+| `ApprovalView` | Displays the command, working directory, reason, and risk. Supports scrolling, an arming hint, and Allow once or Deny choices. |
+| `joinSides` / `rule` / `fitLine` | Layout primitives. |
 
-组件通过 `setProps` / `setTheme` 更新，随后调用 `invalidate()`；`invalidate()` 幂等。`render(width)` 同步、无 I/O，返回行不超过 `width`。
+Update components with `setProps` or `setTheme` and invalidate them with `invalidate()` when needed. Invalidation is idempotent. `render(width)` is synchronous, performs no I/O, and never returns a line wider than `width`.
 
-## 安全与宽度保证
+## Terminal safety and width
 
-- 所有行按 `visibleWidth` 计算，不使用 `string.length`
-- 宽度 `0/1/2` 安全降级；Panel 在无法容纳边框时退化为无边框
-- 外部不可信文本需先 `sanitizeLine` / `sanitizeText`；本库对 `Panel` 标题与 `StatusLine` 字段自动清理
-- 组件自身生成的 ANSI 不会被清理
-- 不在 render 中注册事件、启动定时器或访问文件
+- Width is measured in terminal columns, not JavaScript string length.
+- Widths of `0`, `1`, and `2` are supported. `Panel` drops its border when it cannot fit.
+- Sanitize untrusted text with `sanitizeLine` or `sanitizeText`. `Panel` titles and `StatusLine` fields are sanitized automatically.
+- Components preserve their own ANSI styling.
+- Rendering does not register event handlers, start timers, or access files.
 
-## 兼容性与限制
+## Compatibility and limitations
 
-- 仅声明并验证 Pi `1.6.0`；未测试版本不声称兼容
-- Edit 视图消费 Hashline `details` version 1；npm 上的 `@jackice/hashline@0.1.1` 尚不提供该契约，本地 `0.1.2` 候选版已验证。
-- 旧结果或未知 `details` 版本必须回退到原始文本 renderer；`adaptHashlineDetails` 返回 `undefined` 表示不可适配
-- `TodoView` 仅是无副作用的展示组件；`session_todo` 工具、store、`/session-todo` 与 widget 集成位于独立仓库 `@jackice/pi-session-todo`
-- `ApprovalView` 是展示组件，会返回用户选项，但不批准命令。独立审批扩展仍需通过安全复审，不属于本次预览。
+- Compatibility has been verified only against Pi `1.6.0`.
+- `EditView` consumes Hashline `details` version 1. The published `@jackice/hashline@0.1.1` does not provide it; the local `0.1.2` candidate has been verified.
+- Fall back to the original text renderer when `adaptHashlineDetails` returns `undefined` for older or unsupported results.
+- `TodoView` only renders task data. The `session_todo` tool, store, `/session-todo` command, and widget integration belong to the separate `@jackice/pi-session-todo` extension.
+- `ApprovalView` returns a UI choice, not authorization to run a command. The separate approval extension is not part of this preview and remains pending security review.
 
-集成示例见 [`docs/integration.md`](docs/integration.md)。详见 [`docs/compatibility.md`](docs/compatibility.md) 与 [`docs/implementation-status.md`](docs/implementation-status.md)。
+See the [integration examples](docs/integration.md), [compatibility notes](docs/compatibility.md), and [implementation status](docs/implementation-status.md).
 
-## 开发
+## Development
 
 ```bash
 pnpm install
@@ -106,4 +105,4 @@ pnpm bench:heap
 pnpm bench:coldstart
 ```
 
-Gallery 离线运行，无 LLM、无网络、无文件写入。
+The gallery runs offline without an LLM or file writes.
