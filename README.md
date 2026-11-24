@@ -1,16 +1,18 @@
 # @jackice/pi-ui
 
-Pi 扩展的终端 UI 组件库。提供主题适配、ANSI 安全宽度处理、`Panel` / `StatusLine` / `CodeFrame` / `TreeList`，以及 `EditView` 与 `TodoView`。
+Pi 扩展的终端 UI 组件库。提供主题适配、ANSI 安全宽度处理、`Panel` / `StatusLine` / `CodeFrame` / `TreeList`，以及 `EditView`、`TodoView` 和 `ApprovalView`。
 
 - 基线：Pi `1.6.0`、`@earendil-works/pi-tui` `1.6.0`、Node `>=22`
-- 当前阶段：Phase 1/2 与 P3 UI 组件已实现；`session_todo` store/tool 与 Approval 尚未通过门禁
+- 发布范围：本包是独立 UI 预览，不包含工具注册、TODO 持久化或审批 Gate。
 - 不注册工具、不持久化业务数据、不读取工作区、不批准命令、不持有 AgentSession
 
 ## 安装
 
 ```bash
-pnpm add @jackice/pi-ui
+pnpm add @jackice/pi-ui@next
 ```
+
+预览版通过 npm 的 `next` 标签分发，不使用 `latest`。
 
 `@earendil-works/pi-tui` 为 peer dependency，由 Pi 宿主提供；库不会打包第二套 Pi runtime。
 
@@ -83,10 +85,10 @@ export default function (pi: ExtensionAPI) {
 ## 兼容性与限制
 
 - 仅声明并验证 Pi `1.6.0`；未测试版本不声称兼容
-- Edit 视图消费 Hashline `details` version 1；已安装的 `@jackice/hashline@0.1.1` 仍返回空 `details`，需要升级到包含该契约的版本
+- Edit 视图消费 Hashline `details` version 1；npm 上的 `@jackice/hashline@0.1.1` 尚不提供该契约，本地 `0.1.2` 候选版已验证。
 - 旧结果或未知 `details` 版本必须回退到原始文本 renderer；`adaptHashlineDetails` 返回 `undefined` 表示不可适配
 - `TodoView` 仅是无副作用的展示组件；`session_todo` 工具、store、`/session-todo` 与 widget 集成位于独立仓库 `@jackice/pi-session-todo`
-- Approval 视图仍依赖 Guardrails 最终执行参数绑定与取消路径；通过门禁前不提供公共导出
+- `ApprovalView` 是展示组件，会返回用户选项，但不批准命令。独立审批扩展仍需通过安全复审，不属于本次预览。
 
 集成示例见 [`docs/integration.md`](docs/integration.md)。详见 [`docs/compatibility.md`](docs/compatibility.md) 与 [`docs/implementation-status.md`](docs/implementation-status.md)。
 

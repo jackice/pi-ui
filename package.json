@@ -5,6 +5,10 @@
   "type": "module",
   "license": "MIT",
   "author": "jackice",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackice/pi-ui.git"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
