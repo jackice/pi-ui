@@ -121,6 +121,7 @@ EditView 显示 `partial`，`c.txt` 标记 `not written`；错误说明包含 `S
 | 项 | 状态 |
 |---|---|
 | create | Hashline 明确不支持新建文件（提示使用 `write`），不属于 hashline Edit 范围 |
-| 多文件取消 | Hashline `execute` 未消费 abort signal，写入过程中取消未支持/未验证 |
+| 多文件取消 | 已支持：`Patcher.apply(..., {signal})` 在 prepare/commit 边界检查；`PatcherAbortedError` 区分 landed/not_written；工具返回 `cancelled` details。真实 Ctrl+C 截图未捕获 |
+| 旧 Session / 主题 / noop / 中文长行 | 已覆盖 |
 
-因此 G2 标记为“部分通过（核心验收完成）”，唯一功能残余是取消语义。
+G2 标记为“通过（核心验收）”；唯一非适用项是 `create`（Hashline 设计为只编辑已有文件）。

@@ -24,7 +24,7 @@
 | P3-02 Persistence | 完成 | `pi-session-todo`：version 1 snapshot、branch 水合、EACCES、损坏只读 | 先落盘再发布 |
 | P3-03 TreeList / TodoView | 完成 | `src/components/tree-list.ts`、`src/views/todo.ts`、60 个测试 | 纯展示；默认 4 阶段/5 任务，活跃任务优先 |
 | P3-04 Widget 集成 | 完成 | `pi-session-todo/src/widget.ts` + 真实 TUI | `aboveEditor`、高度预算、自动隐藏 |
-| G2 | 部分通过（核心验收） | A/B/C 请求/文件/content/schema；40-240 宽度；折叠/展开；partial/not_written/stale/REM/MV；旧 Session；双主题；noop/中文长行；`docs/g2-regression.md` | 残余：cancel（Hashline 未消费 abort signal）；create 由 Hashline 不支持 |
+| G2 | 通过（核心验收） | A/B/C；40-240 宽度；折叠；partial/not_written/stale/REM/MV；旧 Session；主题；noop/中文长行；cancel（signal + landed/not_written）；`docs/g2-regression.md` | create 由 Hashline 设计为不支持；真实 Ctrl+C 截图未捕获 |
 | G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表+claim、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：项目 todo status update 真机、/tree UI、排队写入 |
 | P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 残余真机项 |
 | P4 | 阻断 | G0-Approval | 未实现 ApprovalView 接线；保留现有 Gate |
@@ -65,6 +65,7 @@
 | G2 主题 | catppuccin-mocha / nightowl 下 Edit 布局正常 |
 | G2 noop | 无变化补丁显示 `noop` + `no changes`，无伪造 hunk |
 | G2 中文长行 | 40 列下 `↪` 续行，未越界 |
+| G2 cancel | pre-abort 不写盘；多文件首段落盘后 abort，landed/not_written 正确；details status `cancelled` |
 
 ## 阻塞与决策
 
