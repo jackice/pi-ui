@@ -142,8 +142,14 @@
 | UI | `ctx.hasUI` 为假直接 block；否则 `ctx.ui.select` | `permission-gate.ts:57-71` |
 | 取消/超时/最终参数绑定 | 未实现；`select` 无超时，批准后无二次参数校验 | 全文 |
 | RPC | `ctx.hasUI === true`，仍走 `select` | Pi 文档 `extensions.md:1177` |
+| `custom<T>` 焦点/Esc/超时/Ctrl+C | 通过 | 真实 TUI 探针，见 `docs/approval-findings.md` |
+| 挂起时 reload | **阻断** | 组件 dispose，但 `custom()` Promise 未结算 |
+| `tool_call` 最终绑定 | **阻断** | 后续 mutator 可改写；commandPrefix/spawnHook 在 hook 后生效 |
+| print/headless | 默认拒绝 | `ctx.hasUI=false`，现有 Gate 直接 block |
+| RPC 可信通道 | 未验证 | 默认拒绝，直到实测 |
+| 子代理审批通道 | 未验证 | 默认拒绝 |
 
-结论：P4 需要的最终执行参数绑定、FIFO 队列、默认拒绝、超时/abort 释放均未验证或未实现。G0-Approval 阻断。
+结论：现有 `tool_call` Gate 无法证明授权绑定最终执行参数；G0-Approval 阻断。P4 不发布，保留现有 Gate。安全设计见 `docs/approval-findings.md`。
 
 ## 5. 接入选择（P0-03）
 
@@ -161,7 +167,7 @@
 | G0-Base | 通过 | 版本、公开契约、包入口、工具链已锁定；`pnpm test` / `pnpm typecheck` / `pnpm build` 可复现；打包产物已在真实 Pi 1.6.0 中加载 |
 | G0-Edit | 通过 | 真实 Pi 1.6.0 探针：resolver 接管、details v1、执行保留、原生 `edit` 不变；本地 Hashline source 提供 v1 |
 | G0-Todo | 通过 | HUD/落盘/no-session/reload/fork/new/switch/navigate/shutdown/写入失败/共存/高度上限已实测；`/tree` UI 与取消路径留 P3 补测 |
-| G0-Approval | 阻断 | 未跑最终参数绑定与取消探针；现有 Gate 无队列/超时 |
+| G0-Approval | 阻断 | `tool_call` 无法绑定最终参数；`custom()` reload 不结算；详见 `docs/approval-findings.md` |
 
 未验证项不得在 P2/P3/P4 中表述为通过。
 

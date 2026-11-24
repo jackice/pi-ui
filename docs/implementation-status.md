@@ -7,11 +7,11 @@
 | P0-01 环境与源码锁定 | 完成 | `docs/compatibility.md` §1-4 | Bun 全局锁文件记录 1.5.2，磁盘实际 1.6.0 |
 | P0-02 Edit 探针 | 完成 | 真实 Pi TUI/JSON：details=1、resolver 接管、执行保留、原生 edit 不变 | 本地 Hashline source |
 | P0-02 TODO 探针 | 完成 | 真实 TUI：widget 生命周期、落盘、reload/fork/new/switch/navigate/shutdown、EACCES、共存、高度上限 | `/tree` UI 与取消路径留 P3 |
-| P0-02 Approval 探针 | 未开始 | — | 需要最终参数绑定与取消路径 |
+| P0-02 Approval 探针 | 完成（阻断） | `docs/approval-findings.md`：custom<T> 行为、reload 不结算、tool_call 参数漂移 | 需替换执行边界或阻断 P4 |
 | G0-Base | 通过 | 打包产物在真实 Pi 1.6.0 中加载：`loaded rows=3 status=1 first=32` | 公开 TUI/Theme 契约已记录 |
 | G0-Edit | 通过 | `docs/compatibility.md` §2.2-2.3、§3 | 本地 source 交付 `details` v1；安装版 0.1.1 仍需升级 |
 | G0-Todo | 通过 | `docs/compatibility.md` §4.2 | HUD、持久化、分支替换、reload、共存、高度上限 |
-| G0-Approval | 阻断 | `docs/compatibility.md` §4.3 | 现有 Gate 无队列/超时/最终绑定 |
+| G0-Approval | 阻断 | `docs/approval-findings.md` | tool_call 最终参数漂移；reload 不结算 custom Promise |
 | P1-01 Component 契约 | 完成 | `src/core/layout.ts` | 复用 `@earendil-works/pi-tui` 公开契约 |
 | P1-02 Theme / Layout | 完成 | `src/core/{theme,ansi,layout}.ts` | tone 映射、DCS/OSC/CSI 清理、宽度工具 |
 | P1-03 Panel / StatusLine | 完成 | `src/components/*`、`examples/gallery.ts` | 标题嵌入边框、路径中间省略、窄宽降级 |
@@ -27,7 +27,7 @@
 | G2 | 部分通过 | 上述探针 + 60 个单测 | 尚缺可安装 Hashline 版本、A/B provider 请求等价、40-240 列真实截图矩阵 |
 | G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表+claim、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：项目 todo status update 真机、/tree UI、排队写入 |
 | P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 残余真机项 |
-| P4 | 阻断 | G0-Approval | 未冻结接口前不实现 ApprovalView |
+| P4 | 阻断 | G0-Approval | 未实现 ApprovalView 接线；保留现有 Gate |
 
 ## 验证记录
 
