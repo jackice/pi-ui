@@ -117,14 +117,19 @@
 | 首条消息前 appendEntry | 内存可读，未落盘 | `--session-dir` 目录为空 |
 | 首条消息后落盘 | 通过 | session JSONL 含 `"type":"custom","customType":"todo-probe"` |
 | `--no-session` | 仅内存 | 条目可读，无 session 文件 |
-| reload | 通过 | `entries=3 branch=8`，恢复后 widget 重新挂载 |
-| fork | 通过 | `entries=4 branch=9`，fork 文件继承 custom entries |
-| 写入失败 | 显式报错 | 只读 session 文件：`append_error EACCES: permission denied`，TUI 显示 Error |
+| reload | 通过 | `session_start reason=reload`，同一 session id/file，branch 保留，widget 重新挂载 |
+| fork | 通过 | `reason=fork`、`previousSessionFile` 指向旧文件，新文件 `branch=7`，custom entry 继承 |
+| newSession | 通过 | `reason=new`，`branch=2`，旧实例 `session_shutdown` + `widget_dispose` |
+| switchSession | 通过 | `reason=resume`，target 正确，`branch=9`，custom entry 恢复 |
+| navigateTree/rewind | 通过 | `session_tree old/new`、label 落盘、被放弃分支的 custom entry 不在新 branch、原 prompt 恢复到编辑器 |
+| shutdown | 通过 | `session_shutdown` 后 `widget_dispose` |
+| 实例代数 | 风险已定位 | `new/fork/switch/reload` 都创建新扩展实例，内存 generation 重置为 1；store 必须从 branch 重新水合 |
 | 与全局扩展共存 | 通过 | 同屏出现 TODO widget 与 powerline footer，无重复 widget |
-| 极矮终端高度 | 风险 | 12 行终端 + 6 行 widget 被裁剪到 5 行，编辑器输入区被挤出；P3 必须强制高度上限/窄高降级 |
-| 切分支/rewind/tree | 未测 | 剩余 P3 验收项 |
+| 高度上限 | 通过 | 策略 `clamp(rows-9, 1, 5)`；22/24 行下 5 行 widget 不改变 footer/编辑器布局；12 行下限制为 3 行 |
+| `/tree` UI 本身 | 未自动化 | 已通过 `ctx.navigateTree` 覆盖同一运行时路径 |
+| cancelled switch/fork | 未测 | 剩余 P3 实现时补 |
 
-结论：HUD 与持久化主路径可用；共存通过；高度预算需要 P3 处理。G0-Todo 标记为“部分通过”，切分支/rewind/tree 仍需在 P3 实现时补齐。
+结论：G0-Todo 的 HUD、持久化、分支替换与高度预算主路径已通过；剩余 `/tree` UI 与取消路径属于 P3 实现期验证项。
 
 ### 4.3 权限门禁（Approval）
 
@@ -155,7 +160,7 @@
 |---|---|---|
 | G0-Base | 通过 | 版本、公开契约、包入口、工具链已锁定；`pnpm test` / `pnpm typecheck` / `pnpm build` 可复现；打包产物已在真实 Pi 1.6.0 中加载 |
 | G0-Edit | 通过 | 真实 Pi 1.6.0 探针：resolver 接管、details v1、执行保留、原生 `edit` 不变；本地 Hashline source 提供 v1 |
-| G0-Todo | 部分通过 | HUD、落盘、no-session、reload、fork、写入失败、共存已实测；切分支/rewind/tree 未测，极矮终端需 P3 高度上限 |
+| G0-Todo | 通过 | HUD/落盘/no-session/reload/fork/new/switch/navigate/shutdown/写入失败/共存/高度上限已实测；`/tree` UI 与取消路径留 P3 补测 |
 | G0-Approval | 阻断 | 未跑最终参数绑定与取消探针；现有 Gate 无队列/超时 |
 
 未验证项不得在 P2/P3/P4 中表述为通过。
