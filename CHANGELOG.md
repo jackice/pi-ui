@@ -1,6 +1,6 @@
 # Changelog
 
-## 未发布
+## 0.4.2
 
 - 优化带行号栏的 ANSI 行宽计算；中文、emoji 和其他转义仍使用 Pi TUI 的宽度规则。
 - CodeFrame 的无 Tab 行不再逐字符重建原文，保持换行、样式和 Tab 展开行为不变。
