@@ -27,6 +27,9 @@
 | G2 | 通过（核心验收） | A/B/C；40-240 宽度；折叠；partial/not_written/stale/REM/MV；旧 Session；主题；noop/中文长行；cancel（signal + landed/not_written）；`docs/g2-regression.md` | create 由 Hashline 设计为不支持；真实 Ctrl+C 截图未捕获 |
 | G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表+claim、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：项目 todo status update 真机、/tree UI、排队写入 |
 | P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 残余真机项 |
+| P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
+| P5-03 Performance | 部分完成 | `pnpm bench`、`docs/performance.md` | 100 行目标通过；冷启动/RSS/A-B 未测 |
+| G5 | 未通过 | P5 部分、G4 阻断 | 不发布 v1.0 |
 | P4 | 阻断 | G0-Approval | 未实现 ApprovalView 接线；保留现有 Gate |
 
 ## 验证记录

@@ -97,6 +97,7 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm gallery
+pnpm bench
 ```
 
 Gallery 离线运行，无 LLM、无网络、无文件写入。
