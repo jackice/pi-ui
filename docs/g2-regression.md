@@ -83,14 +83,38 @@ tmux `-x W -y 40`，fake provider 执行 read + hashline PUT：
 - 文件未被修改。
 - 错误文本同时出现在工具块与错误视图，存在重复但信息一致。
 
-## 7. 残余项
+## 7. 旧 Session 回放
+
+- 用旧 Hashline `0.1.1` 生成真实 Session，工具结果 `details: {}`。
+- 用新 Hashline + EditView resolver 打开同一 Session。
+- 结果显示原始文本摘要与 diff；未出现 Edit 面板。
+- 结论：旧 Session 安全降级，不伪造结构化 diff。
+
+## 8. not_written 与三文件部分写入
+
+三个文件同一补丁，`b.txt` 只读：
+
+| 文件 | 结果 |
+|---|---|
+| `a.txt` | ✓ success，写入 `patchedA` |
+| `b.txt` | ✗ error EACCES，保持 `world` |
+| `c.txt` | ○ not written，保持 `world` |
+
+EditView 显示 `partial`，`c.txt` 标记 `not written`；错误说明包含 `Sections not written: c.txt.`。
+
+## 9. 主题切换
+
+| 主题 | Edit 面板 |
+|---|---|
+| `catppuccin-mocha` | 正常，无越界 |
+| `nightowl` | 正常，无越界 |
+
+## 10. 残余项
 
 | 项 | 状态 |
 |---|---|
 | create | Hashline 明确不支持新建文件（提示使用 `write`），不属于 hashline Edit 范围 |
-| delete / move | 真机文件效果通过：`REM` 后文件消失，`MV b.txt` 后文件移动；面板截图未捕获 |
-| 旧 Session 回放 | 未回放真实历史 session 文件 |
-| 主题切换截图 | 未做逐主题截图 |
-| not_written / unknown 状态真机 | 单测覆盖，未注入真实未尝试区段 |
+| 多文件取消 | 未在写入过程中注入 abort/cancel |
+| 中文长行 / 空 diff 真机 | 单测覆盖，未单独截图 |
 
-因此 G2 标记为“部分通过（核心回归通过）”，不宣称完整 G2。
+因此 G2 标记为“部分通过（核心验收完成）”，仅剩 cancel 与两个展示边界的真机证据。
