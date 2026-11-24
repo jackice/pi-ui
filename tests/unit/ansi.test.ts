@@ -1,4 +1,4 @@
-import { visibleWidth } from "@earendil-works/pi-tui";
+import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -83,6 +83,16 @@ describe("truncate and pad", () => {
     expect(displayWidth(pad("ab", 2))).toBe(2);
     expect(pad("abcd", 2)).toBe("ab");
     expect(pad("", 0)).toBe("");
+  });
+
+  it("preserves exact-width status styles and defers complex clusters to Pi", () => {
+    const status = "\x1b[38;5;72m✓\x1b[39m \x1b[31mfile.ts\x1b[39m";
+    expect(pad(status, 9)).toBe(status);
+    expect(pad(status, 8)).toBe(truncateToWidth(status, 8, ""));
+
+    const styled = "✓ \x1b[31m👩\x1b[39m\u200d💻";
+    const width = visibleWidth(styled);
+    expect(pad(styled, width)).toBe(truncateToWidth(styled, width, ""));
   });
 });
 

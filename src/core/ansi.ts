@@ -10,12 +10,16 @@ import {
 const ELLIPSIS = "…";
 const ESCAPE = "\x1b";
 
-// 行号栏让整行进入宿主的 Unicode 路径，即使代码只有 ASCII。
-function gutterWidth(text: string): number {
+// 少量单列 UI 符号会让整行进入宿主的 Unicode 路径。
+function simpleStyledWidth(text: string): number {
+  if (!/[│✓]/.test(text)) return -1;
   let width = 0;
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
-    if ((code >= 0x20 && code <= 0x7e) || code === 0x2502 || code === 0x21aa || code === 0x2192 || code === 0xb7) {
+    if (
+      (code >= 0x20 && code <= 0x7e) ||
+      code === 0x2502 || code === 0x21aa || code === 0x2192 || code === 0xb7 || code === 0x2713
+    ) {
       width++;
       continue;
     }
@@ -28,11 +32,8 @@ function gutterWidth(text: string): number {
 }
 
 export function displayWidth(text: string): number {
-  if (text.includes("│")) {
-    const width = gutterWidth(text);
-    if (width !== -1) return width;
-  }
-  return visibleWidth(text);
+  const width = simpleStyledWidth(text);
+  return width === -1 ? visibleWidth(text) : width;
 }
 
 export function sanitizeLine(text: string): string {
@@ -64,7 +65,9 @@ export function truncate(text: string, width: number, ellipsis = ELLIPSIS): stri
 export function pad(text: string, width: number, align: "left" | "right" | "center" = "left"): string {
   const limit = normalizeWidth(width);
   if (limit === 0) return "";
-  const current = displayWidth(text);
+  const simpleWidth = simpleStyledWidth(text);
+  if (simpleWidth === limit && text.includes(ESCAPE)) return text;
+  const current = simpleWidth === -1 ? visibleWidth(text) : simpleWidth;
   if (current >= limit) return hardTruncate(text, limit);
   const missing = limit - current;
   if (align === "right") return " ".repeat(missing) + text;
