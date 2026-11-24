@@ -12,3 +12,16 @@ export {
 } from "./core/layout.js";
 export { Panel, type PanelProps } from "./components/panel.js";
 export { StatusLine, type StatusLineProps } from "./components/status-line.js";
+export { CodeFrame, type CodeFrameProps } from "./components/code-frame.js";
+export { adaptHashlineDetails, type AdaptOptions } from "./diff/adapter.js";
+export type {
+  DiffHunk,
+  DiffKind,
+  DiffLine,
+  EditStatus,
+  EditViewModel,
+  FileEditStatus,
+  FileEditView,
+  FileOperation,
+} from "./diff/types.js";
+export { EditView, type EditViewProps } from "./views/edit.js";

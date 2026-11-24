@@ -55,27 +55,43 @@
 
 ### 2.2 真实 Pi 加载探针（打包产物）
 
-- 执行：`pnpm pack` → 临时项目 `pnpm add ./jackice-pi-ui-0.1.0.tgz @earendil-works/pi-tui@1.6.0`
-- 临时扩展导入 `@jackice/pi-ui`，在 `pi -p --no-session -ne -e ./probe.ts` 下加载
-- 实测输出：`[pi-ui-probe] loaded rows=3 status=1 first=32`
-- 结论：Pi 1.6.0 的 jiti 扩展加载器能解析打包产物的公开 exports；`Panel` / `StatusLine` 在宿主进程中完成渲染。未知 provider 在扩展加载后报错，不影响本结论。
+- 0.1.0：`pnpm pack` → 临时项目安装 → `pi -p --no-session -ne -e ./probe.ts`
+  - 实测输出：`[pi-ui-probe] loaded rows=3 status=1 first=32`
+  - 结论：Pi 1.6.0 的 jiti 加载器能解析公开 exports。
+- 0.2.0（EditView TUI）：本地确定性 provider 返回 `read` → `hashline` 补丁，Pi 加载本地 Hashline source + 打包 `@jackice/pi-ui`。
+  - TUI 实测：显示 `Edit` 面板、`success · 3ms`、`✓ update a.txt`、`+1 -1`、`- world`、`+ patched`；文件实际写入 `patched`。
+  - JSON 模式实测：工具结果含 `"version":1`、`"operation":"update"`、`"additions":1`。
+  - resolver 探针：`hashline` 显示 `PIUI-CALL` / `PIUI-RESULT details=1`，无默认 Box 重复外框。
+  - 原生 `edit` 探针：默认 diff 展示，未出现自定义 marker；文件实际写入 `native`。
+
+### 2.3 真实 Edit 探针结论
+
+| 检查项 | 结果 |
+|---|---|
+| resolver 仅接管 `hashline` | 通过 |
+| `renderShell: "self"` 无重复外框 | 通过 |
+| 执行结果保留 | 通过 |
+| 真实 `details` version 1 | 通过 |
+| 原生 `edit` renderer 不变 | 通过 |
+| 旧 `0.1.1` 结果降级 | 通过（`details` 空 → adapter 返回 `undefined`） |
 
 ## 3. Hashline 集成基线（Edit）
 
 | 项目 | 实测值 | 证据 |
 |---|---|---|
-| 包版本 | `@jackice/hashline@0.1.1` | `~/.pi/agent/npm/node_modules/@jackice/hashline/package.json` |
+| 已安装包版本 | `@jackice/hashline@0.1.1` | `~/.pi/agent/npm/node_modules/@jackice/hashline/package.json` |
 | 已安装源码 | `index.ts` sha256 `b8f96ea4...c2fbc43` | `shasum -a 256` |
-| 本地源码 commit | `8e70c41b6f8a9c626562a28be9f8176da590bf9c` | `git -C hashline log -1` |
-| 一致性 | 已安装 `index.ts` 与本地 commit 文件哈希一致 | 两次 sha256 相同 |
+| 本地源码 commit | `2d152f7bd4777ca51f4f02f2f649f800bcf2da47` | `git -C hashline log -1` |
+| 本地/安装差异 | 安装版仍是旧 commit `8e70c41`；本地新增 `details` v1 | 两次 sha256 对比 |
 | 扩展入口 | `package.json` `pi.extensions: ["./index.ts"]` | 同上 |
 | read 改写 | `pi.on("tool_result")`，仅非错误 `read` | `hashline/index.ts:242` |
 | 工具注册 | `pi.registerTool({ name: "hashline", ... })` | `hashline/index.ts:275-276` |
-| 结果结构 | 仅文本 `content`；`details` 恒为 `{}`（成功/失败均空） | `hashline/index.ts:298,304,311` |
+| 本地结果结构 | `details: {version:1,status,files[{path,operation,status,hunks,additions,deletions,...}]}` | `src/edit-details.ts` |
+| 已安装结果结构 | 仅文本 `content`；`details` 恒为 `{}` | 安装版 `index.ts` |
 | 文本摘要 | 先剥离共同前后缀，再按最多 12 行截断并输出 `...` | `hashline/index.ts:172-205` |
-| 自定义 renderer | 无 | 全文件仅 `registerTool` |
+| 自定义 renderer | 无；由 pi-ui resolver 接管 | — |
 
-结论：当前 Hashline 无法提供结构化 hunk、双侧行号、文件操作或准确统计；P2 完整 Edit 依赖 Hashline 新版 `details`。旧结果只能做“预览”并明确标注截断。
+结论：本地 Hashline source 已提供 version 1 结构化 `details`，真实 Pi TUI/JSON 探针通过；已安装 `0.1.1` 仍为空 details，旧结果必须回退。G2 的“可安装兼容版本”仍需发布/升级后再验收。
 
 ## 4. TODO 与权限门禁基线
 
@@ -108,7 +124,7 @@
 | 能力 | 首版选择 | 理由 |
 |---|---|---|
 | Edit renderer | 独立 resolver，仅接管 `hashline` | `renderShell: "self"` 与 resolver 均为 1.6.0 公开 API |
-| Edit 数据 | 等待 Hashline 版本化 `details` | 0.1.1 `details` 为空 |
+| Edit 数据 | Hashline `details` v1；旧结果回退原始 renderer | 本地 source 已交付并通过真实 Pi 探针；安装版 0.1.1 仍需升级 |
 | HUD | `setWidget` component factory，`aboveEditor` | 1.6.0 已验证签名 |
 | Approval | `custom<T>` + Guardrails 最终参数绑定 | 绑定与取消尚未验证，暂不发布 |
 
@@ -117,7 +133,7 @@
 | 门禁 | 状态 | 说明 |
 |---|---|---|
 | G0-Base | 通过 | 版本、公开契约、包入口、工具链已锁定；`pnpm test` / `pnpm typecheck` / `pnpm build` 可复现；打包产物已在真实 Pi 1.6.0 中加载 |
-| G0-Edit | 阻断 | 未跑真实 Pi Edit 探针；Hashline 无结构化 `details` |
+| G0-Edit | 通过 | 真实 Pi 1.6.0 探针：resolver 接管、details v1、执行保留、原生 `edit` 不变；本地 Hashline source 提供 v1 |
 | G0-Todo | 阻断 | 未跑真实 PTY widget/appendEntry/分支探针 |
 | G0-Approval | 阻断 | 未跑最终参数绑定与取消探针；现有 Gate 无队列/超时 |
 

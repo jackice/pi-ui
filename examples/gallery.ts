@@ -1,8 +1,11 @@
 import {
+  adaptHashlineDetails,
   displayWidth,
+  EditView,
   Panel,
   plainTheme,
   StatusLine,
+  type EditViewModel,
   type Renderable,
   type Tone,
   type UiTheme,
@@ -35,6 +38,11 @@ function text(lines: readonly string[]): Renderable {
   return { render: () => lines };
 }
 
+function requireModel(model: EditViewModel | undefined): EditViewModel {
+  if (model === undefined) throw new Error("invalid edit fixture");
+  return model;
+}
+
 function assertWidth(lines: readonly string[], width: number, label: string): void {
   for (const line of lines) {
     if (displayWidth(line) > width) {
@@ -49,13 +57,56 @@ function show(label: string, lines: readonly string[], width: number): void {
   process.stdout.write(`${lines.join("\n")}\n\n`);
 }
 
-const diffBody = text([
-  theme.fg("muted", "src/app.ts") + theme.fg("muted", " · 2 hunks"),
-  `${theme.fg("muted", "  10 │")} export function run() {`,
-  `${theme.fg("muted", "  11 │")} ${theme.fg("removed", "-  return oldValue;")}`,
-  `${theme.fg("muted", "  11 │")} ${theme.fg("added", "+  return newValue;")}`,
-  `${theme.fg("muted", "  12 │")} }`,
-]);
+const editModel = requireModel(
+  adaptHashlineDetails({
+    version: 1,
+    status: "success",
+    files: [
+      {
+        path: "src/app.ts",
+        operation: "update",
+        status: "success",
+        additions: 1,
+        deletions: 1,
+        hunks: [
+          {
+            oldStart: 10,
+            oldLines: 3,
+            newStart: 10,
+            newLines: 3,
+            lines: [
+              { kind: "context", oldLine: 10, newLine: 10, content: "export function run() {" },
+              { kind: "removed", oldLine: 11, content: "  return oldValue;" },
+              { kind: "added", newLine: 11, content: "  return newValue;" },
+              { kind: "context", oldLine: 12, newLine: 12, content: "}" },
+            ],
+          },
+        ],
+      },
+    ],
+  }),
+);
+
+const partialModel: EditViewModel = {
+  status: "partial",
+  files: [
+    {
+      path: "src/app.ts",
+      operation: "update",
+      status: "success",
+      additions: 2,
+      deletions: 1,
+      hunks: editModel.files[0]?.hunks ?? [],
+    },
+    {
+      path: "src/broken.ts",
+      operation: "unknown",
+      status: "error",
+      hunks: [],
+      error: "disk full",
+    },
+  ],
+};
 
 const todoBody = text([
   theme.fg("accent", "▾ Phase 1 · UI Foundation"),
@@ -74,14 +125,11 @@ const approvalBody = text([
 ]);
 
 function gallery(width: number): void {
-  const edit = new Panel(theme, {
-    title: "Edit · hashline",
-    titleRight: "+1 -1",
-    border: "rounded",
-    paddingX: 1,
-    children: [diffBody],
-  });
-  show("Edit preview fixture", edit.render(width), width);
+  const edit = new EditView(theme, { model: editModel, maxHunks: 3 });
+  show("Edit view fixture", edit.render(width), width);
+
+  const partial = new EditView(theme, { model: partialModel, expanded: true });
+  show("Edit partial fixture", partial.render(width), width);
 
   const todo = new Panel(theme, {
     title: "Session TODO",

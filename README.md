@@ -1,9 +1,9 @@
 # @jackice/pi-ui
 
-Pi 扩展的终端 UI 组件库。首版提供主题适配、ANSI 安全宽度处理、`Panel` 与 `StatusLine`。
+Pi 扩展的终端 UI 组件库。提供主题适配、ANSI 安全宽度处理、`Panel` / `StatusLine` / `CodeFrame`，以及基于 Hashline 结构化 `details` 的 `EditView`。
 
 - 基线：Pi `1.6.0`、`@earendil-works/pi-tui` `1.6.0`、Node `>=22`
-- 当前阶段：Phase 0 完成，Phase 1（G1）组件已实现；Edit/TODO/Approval 尚未通过各自门禁
+- 当前阶段：Phase 0 完成，Phase 1（G1）与 Phase 2 Edit 视图已实现；TODO / Approval 尚未通过各自门禁
 - 不注册工具、不持久化业务数据、不读取工作区、不批准命令、不持有 AgentSession
 
 ## 安装
@@ -62,6 +62,9 @@ export default function (pi: ExtensionAPI) {
 | `truncate` / `pad` / `wrap` / `middleTruncate` | 宽度安全文本处理；`pad` 为硬截断 |
 | `Panel` | 标题嵌入边框、左右标题、圆角/方角/无边框、X/Y padding、按宽度缓存 |
 | `StatusLine` | 图标、标题、路径中间省略、右侧元数据；窄宽优先保留 meta |
+| `CodeFrame` | 双侧行号、+/- marker、上下文/新增/删除着色、Tab 箭头、悬挂缩进、折叠提示 |
+| `adaptHashlineDetails(details)` | 将 Hashline `details` version 1 适配为 `EditViewModel`；未知版本返回 `undefined` |
+| `EditView` | Panel + StatusLine + CodeFrame，多文件、partial/error/not_written、折叠与源截断提示 |
 | `joinSides` / `rule` / `fitLine` | 布局原语 |
 
 组件通过 `setProps` / `setTheme` 更新，随后调用 `invalidate()`；`invalidate()` 幂等。`render(width)` 同步、无 I/O，返回行不超过 `width`。
@@ -77,13 +80,14 @@ export default function (pi: ExtensionAPI) {
 ## 兼容性与限制
 
 - 仅声明并验证 Pi `1.6.0`；未测试版本不声称兼容
-- 完整 Diff、TODO HUD、Approval 视图依赖：
-  - Hashline 版本化结构化 `details`（当前 `0.1.1` 为空）
+- Edit 视图消费 Hashline `details` version 1；已安装的 `@jackice/hashline@0.1.1` 仍返回空 `details`，需要升级到包含该契约的版本
+- 旧结果或未知 `details` 版本必须回退到原始文本 renderer；`adaptHashlineDetails` 返回 `undefined` 表示不可适配
+- TODO HUD、Approval 视图仍依赖：
   - `session_todo` 工具与 Session 持久化探针
   - Guardrails 最终执行参数绑定与取消路径
 - 在上述门禁通过前，不提供对应公共导出
 
-详见 [`docs/compatibility.md`](docs/compatibility.md) 与 [`docs/implementation-status.md`](docs/implementation-status.md)。
+集成示例见 [`docs/integration.md`](docs/integration.md)。详见 [`docs/compatibility.md`](docs/compatibility.md) 与 [`docs/implementation-status.md`](docs/implementation-status.md)。
 
 ## 开发
 

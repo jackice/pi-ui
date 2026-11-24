@@ -1,7 +1,7 @@
 {
   "name": "@jackice/pi-ui",
-  "version": "0.1.0",
-  "description": "Terminal UI components for Pi extensions: theme mapping, ANSI-safe layout, panels, and status lines.",
+  "version": "0.2.0",
+  "description": "Terminal UI components for Pi extensions: theme mapping, ANSI-safe layout, panels, status lines, diff frames, and an Edit view.",
   "type": "module",
   "license": "MIT",
   "author": "jackice",
@@ -11,6 +11,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./diff": {
+      "types": "./dist/diff/index.d.ts",
+      "import": "./dist/diff/index.js"
+    },
+    "./views/edit": {
+      "types": "./dist/views/edit.d.ts",
+      "import": "./dist/views/edit.js"
     }
   },
   "files": [
