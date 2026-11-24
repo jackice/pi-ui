@@ -30,10 +30,11 @@
 | P4-01 Gate / 绑定 | 完成 | `pi-approval-gate`：execute 审批、FIFO、timeout、abort、spawnHook 指纹 | 支持默认 CLI bash |
 | P4-02 ApprovalView | 完成 | `src/views/approval.ts` + 6 个测试 | 完整命令/滚动/Deny 默认/arm |
 | P4-03 宿主 / 并发 | 完成（主路径） | 单对话框、16 上限、session_shutdown 取消；RPC/子代理默认拒绝已实测 | 可信通道未接入 |
-| P4-04 安全测试 | 完成（评审修复） | 独立评审 Critical/High 已修复；policy 51 + gate 6 + binding 3 + dialog 4 | Low 残余：arm 倒计时、审计 entry、复审 |
-| G4 | 部分通过（待复审） | 安全评审 C1/H1/H2/H3/M1/M2/M3/M4/M5 修复并回归 | 独立复审、可信 RPC 通道未完成 |
+| P4-04 安全测试 | 已有回归，待复审 | 66 项测试；新增安装路径别名与来源不可确认的回归 | 独立复审未产出结论 |
+| G4 | 部分通过 | 主路径已有证据；候选包在真实 Pi 初始化通过 | 独立复审未产出结论；未接入可信 RPC，保持默认拒绝 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
 | P5-03 Performance | 部分完成 | `docs/performance.md`：真实 PTY 对照、120 轮长会话压测、V8/原生分配栈、TODO 工具与 HUD | 等宽状态行优化后，两轮长会话缩放 P95 同组下降约 31% 与 40%；系统峰值未复测 |
+| P5-04 交付与回滚 | 部分完成 | 四份 tarball 严格共装；Edit 回原始文本、TODO HUD 隐藏与恢复已实测 | Approval 无保留 Gate 的原生确认切换 |
 | G5 | 未通过 | P5 部分、G4 部分 | 不发布 v1.0 |
 | P4 | 完成（支持入口） | G0-Approval 通过、ApprovalView/Gate 主路径 | 剩余安全 Reviewer 与可信 RPC 通道 |
 
@@ -89,16 +90,19 @@
 | Security M4 | bidi/零宽字符被 `sanitizeText` 移除 |
 | Security M1 | 5KB 构造输入判定 <50ms |
 | G0-Approval binding | 一次性 command+cwd 指纹；改写命令/cwd 抛错 |
-| `pi-approval-gate` `pnpm test` | 4 个文件 / 64 个测试通过 |
-| `pi-approval-gate` 安全评审 | Critical/High 修复；Low 残余与复审待办 |
+| `pi-approval-gate` `pnpm test` | 5 个文件 / 66 个测试通过；符号链接别名通过，来源缺失或不一致仍阻断 |
+| `pi-approval-gate` 安全复审 | 已发起，未产出独立审批结论，不视为通过 |
+| 候选包严格共装 | `pi-ui@0.4.2`、`pi-session-todo@0.1.0`、`pi-approval-gate@0.1.1`、`hashline@0.1.2`；`npm install --strict-peer-deps`，两扩展共用一份 `pi-ui@0.4.2` |
+| 从 tarball 启动 Pi 1.6.0 | `bash`、`hashline`、`session_todo` 活动且来源为安装包；TODO HUD 可见。仅验证初始化，不替代审批行为验收 |
+| 打包后回滚演练 | 同一历史 Session 移除 Edit resolver 后恢复原始工具文本；TODO `hide/status/show` 保持 revision 与任务计数，Session 文件字节未变 |
 
 ## 阻塞与决策
 
-1. G2/G3/G0-Approval 主路径已通过；Hashline 新版本仍为本地 tarball，npm 发布/安装版升级待处理。
+1. 四个候选包可本地共装；公开 npm 的 Hashline 仍为 `0.1.1`，本地 `0.1.2` 尚未上传。`pi-ui@0.4.2` 可独立作为预览候选，不包含审批 Gate。
 2. G3 残余：`/tree` UI 本身、切换期间排队写入；非阻断。
-3. G4 残余：独立安全复审、可信 RPC 审批通道；安全评审 Critical/High 已修复。
+3. G4 残余：取得独立安全复审结论。可信 RPC 审批未接入，在支持矩阵中显式标为默认拒绝。
 4. P5 残余：优化后无采样器的两轮 PTY 对照已验证时延及 RSS 检查点，尚未复测系统峰值；长会话缩放仍高于默认文本基线。
-5. G5 未通过：需 G4 完成、P5 完整报告与最终发布检查。
+5. G5 未通过：Approval 还没有可验证的原生确认回滚开关；需收口支持矩阵、最终评审与发布检查。不发布 v1.0。
 
 ## 复现
 
