@@ -1,5 +1,9 @@
 # Changelog
 
+## 未发布
+
+- 优化带行号栏的 ANSI 行宽计算；中文、emoji 和其他转义仍使用 Pi TUI 的宽度规则。
+
 ## 0.4.1
 
 - `sanitizeText` 移除 bidi/零宽格式字符，防止审批命令视觉重排

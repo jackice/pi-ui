@@ -1,3 +1,4 @@
+import { visibleWidth } from "@earendil-works/pi-tui";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -16,6 +17,20 @@ describe("displayWidth", () => {
     expect(displayWidth("🙂")).toBe(2);
     expect(displayWidth("e\u0301")).toBe(1);
     expect(displayWidth("\x1b[31mred\x1b[0m")).toBe(3);
+  });
+
+  it.each([
+    " 1  2 │ + code",
+    "\x1b[38;2;95;168;204m│\x1b[39m \x1b[31m↪\x1b[m · →",
+    "\x1b[38:2::95:168:204m│\x1b[39m # comment",
+    "│ 中🙂e\u0301",
+    "│\uFE0F\tend",
+    "│ \x1b]8;;https://example.com\x07link\x1b]8;;\x07",
+    "│ \x1b[2Jclear",
+    "│ \x1b[31",
+    "│ \x1b[1m\n",
+  ])("matches Pi terminal columns for styled and mixed gutters: %j", (text) => {
+    expect(displayWidth(text)).toBe(visibleWidth(text));
   });
 });
 

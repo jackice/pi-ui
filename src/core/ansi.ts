@@ -10,7 +10,28 @@ import {
 const ELLIPSIS = "…";
 const ESCAPE = "\x1b";
 
+// 行号栏让整行进入宿主的 Unicode 路径，即使代码只有 ASCII。
+function gutterWidth(text: string): number {
+  let width = 0;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if ((code >= 0x20 && code <= 0x7e) || code === 0x2502 || code === 0x21aa || code === 0x2192 || code === 0xb7) {
+      width++;
+      continue;
+    }
+    if (code !== 0x1b || text.charCodeAt(i + 1) !== 0x5b) return -1;
+    i += 2;
+    while (text.charCodeAt(i) >= 0x30 && text.charCodeAt(i) <= 0x3b) i++;
+    if (text.charCodeAt(i) !== 0x6d) return -1;
+  }
+  return width;
+}
+
 export function displayWidth(text: string): number {
+  if (text.includes("│")) {
+    const width = gutterWidth(text);
+    if (width !== -1) return width;
+  }
   return visibleWidth(text);
 }
 

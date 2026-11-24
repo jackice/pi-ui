@@ -33,7 +33,7 @@
 | P4-04 安全测试 | 完成（评审修复） | 独立评审 Critical/High 已修复；policy 51 + gate 6 + binding 3 + dialog 4 | Low 残余：arm 倒计时、审计 entry、复审 |
 | G4 | 部分通过（待复审） | 安全评审 C1/H1/H2/H3/M1/M2/M3/M4/M5 修复并回归 | 独立复审、可信 RPC 通道未完成 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
-| P5-03 Performance | 部分完成 | `docs/performance.md`：组件基准、真实 PTY 冷启动/热渲染/长会话 A/B、CPU 与 heap 采样 | 空闲预算达标；1000 条结果缩放 P95 为 155.7 ms，需优化 |
+| P5-03 Performance | 部分完成 | `docs/performance.md`：真实 PTY 冷启动/热渲染/长会话 A/B、CPU 与 heap 采样 | 空闲预算达标；行号栏快路径使同组缩放 P95 从 138.5 ms 降至 98.5 ms |
 | G5 | 未通过 | P5 部分、G4 部分 | 不发布 v1.0 |
 | P4 | 完成（支持入口） | G0-Approval 通过、ApprovalView/Gate 主路径 | 剩余安全 Reviewer 与可信 RPC 通道 |
 
@@ -97,7 +97,7 @@
 1. G2/G3/G0-Approval 主路径已通过；Hashline 新版本仍为本地 tarball，npm 发布/安装版升级待处理。
 2. G3 残余：`/tree` UI 本身、切换期间排队写入；非阻断。
 3. G4 残余：独立安全复审、可信 RPC 审批通道；安全评审 Critical/High 已修复。
-4. P5 残余：优化长会话重排的逐行宽度计算与 RSS 高水位，补测 TODO 工具 token 和订阅计数。
+4. P5 残余：长会话缩放和 RSS 仍高；需更长时间的内存压测，补测 TODO 工具 token 和订阅计数。
 5. G5 未通过：需 G4 完成、P5 完整报告与最终发布检查。
 
 ## 复现
