@@ -25,8 +25,8 @@
 | P3-03 TreeList / TodoView | 完成 | `src/components/tree-list.ts`、`src/views/todo.ts`、60 个测试 | 纯展示；默认 4 阶段/5 任务，活跃任务优先 |
 | P3-04 Widget 集成 | 完成 | `pi-session-todo/src/widget.ts` + 真实 TUI | `aboveEditor`、高度预算、自动隐藏 |
 | G2 | 通过（核心验收） | A/B/C；40-240 宽度；折叠；partial/not_written/stale/REM/MV；旧 Session；主题；noop/中文长行；cancel（signal + landed/not_written）；`docs/g2-regression.md` | create 由 Hashline 设计为不支持；真实 Ctrl+C 截图未捕获 |
-| G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表+claim、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：项目 todo status update 真机、/tree UI、排队写入 |
-| P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 残余真机项 |
+| G3 | 通过（主路径） | 真机：parallel/append/rm、项目 todo 列表/claim/status update、branch marker/switch、new 隔离、取消、子代理只读；35 个测试 | 残余：/tree UI 本身、切换期间排队写入 |
+| P3 | 完成（主路径） | G0-Todo 通过、P3 UI + extension 主路径 | 剩余 G3 非阻断残余 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
 | P5-03 Performance | 部分完成 | `pnpm bench`、`docs/performance.md` | 100 行目标通过；冷启动/RSS/A-B 未测 |
 | G5 | 未通过 | P5 部分、G4 阻断 | 不发布 v1.0 |
@@ -55,6 +55,7 @@
 | `pi-session-todo` hide=-1 | `PI_SESSION_TODO_HIDE_MS=-1` 下 12s 后 HUD 仍显示 |
 | G3 parallel | 两个任务同时 in_progress；append/rm 后 HUD 正确，不自动推进 |
 | G3 项目 todo | 同一进程 `todo` 列表 + claim 与 session HUD 共存 |
+| G3 项目 todo update | `todo update --status closed` 真机成功，文件状态变为 closed |
 | G3 branch | navigateTree 回退；`session-todo-branch` 标记使 switch 后保持回退状态 |
 | G3 隔离/取消 | new 空 HUD、切回恢复、仅一个 HUD；`session_before_switch` 取消后 Session/HUD 不变 |
 | G3 子代理 | `PI_SUBAGENT_CHILD=1` 写入拒绝，view 可用 |
