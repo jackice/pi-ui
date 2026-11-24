@@ -109,12 +109,18 @@ EditView 显示 `partial`，`c.txt` 标记 `not written`；错误说明包含 `S
 | `catppuccin-mocha` | 正常，无越界 |
 | `nightowl` | 正常，无越界 |
 
-## 10. 残余项
+## 10. 空 diff / 中文长行
+
+| 场景 | 结果 |
+|---|---|
+| 无变化补丁 | `success`，`noop a.txt`，meta `no changes`，无 hunk |
+| 40 列中文长行 | 行号与 marker 正常；内容按 `↪` 续行，未越界 |
+
+## 11. 残余项
 
 | 项 | 状态 |
 |---|---|
 | create | Hashline 明确不支持新建文件（提示使用 `write`），不属于 hashline Edit 范围 |
-| 多文件取消 | 未在写入过程中注入 abort/cancel |
-| 中文长行 / 空 diff 真机 | 单测覆盖，未单独截图 |
+| 多文件取消 | Hashline `execute` 未消费 abort signal，写入过程中取消未支持/未验证 |
 
-因此 G2 标记为“部分通过（核心验收完成）”，仅剩 cancel 与两个展示边界的真机证据。
+因此 G2 标记为“部分通过（核心验收完成）”，唯一功能残余是取消语义。
