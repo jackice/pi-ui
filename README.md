@@ -100,6 +100,8 @@ pnpm build
 pnpm gallery
 pnpm bench
 pnpm bench:startup
+pnpm bench:heap
+pnpm bench:coldstart
 ```
 
 Gallery 离线运行，无 LLM、无网络、无文件写入。

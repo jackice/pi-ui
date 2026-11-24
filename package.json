@@ -41,7 +41,9 @@
     "test:watch": "vitest",
     "gallery": "tsx examples/gallery.ts",
     "bench": "tsx scripts/bench.ts",
-    "bench:startup": "node scripts/startup-bench.mjs"
+    "bench:startup": "node scripts/startup-bench.mjs",
+    "bench:heap": "node --expose-gc scripts/heap-bench.mjs",
+    "bench:coldstart": "node scripts/coldstart-bench.mjs"
   },
   "peerDependencies": {
     "@earendil-works/pi-tui": "^1.6.0"

@@ -33,7 +33,7 @@
 | P4-04 安全测试 | 部分完成 | deny/allow/timeout/headless/指纹/队列测试 | 缺 RPC、子代理与独立安全 Reviewer |
 | G4 | 部分通过 | 主 Session TUI bash + headless 降级 + 最终绑定通过 | RPC/子代理/安全 Reviewer 未完成 |
 | P5-02 Snapshot | 完成（部分） | `tests/snapshots/render.test.ts` + 6 个快照 | Panel/StatusLine/CodeFrame/EditView/TodoView |
-| P5-03 Performance | 部分完成 | `pnpm bench`、`pnpm bench:startup`、`docs/performance.md` | 100 行目标、导入 +2.76ms/+1.1MiB 通过；完整 TUI 冷启动/heap 未测 |
+| P5-03 Performance | 完成（组件级） | `pnpm bench`、`bench:startup`、`bench:heap`、`bench:coldstart`、`docs/performance.md` | 100 行、+17ms 冷启动、+0.7MiB/1000 轮通过；TUI 会话级 RSS 未测 |
 | G5 | 未通过 | P5 部分、G4 部分 | 不发布 v1.0 |
 | P4 | 完成（支持入口） | G0-Approval 通过、ApprovalView/Gate 主路径 | 剩余 RPC/子代理/Reviewer |
 
