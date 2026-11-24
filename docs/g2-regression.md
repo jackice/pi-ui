@@ -62,14 +62,35 @@ tmux `-x W -y 40`，fake provider 执行 read + hashline PUT：
 - `Ctrl+O`（`app.tools.expand`）：提示消失，显示全部 5 个 hunk。
 - 增删统计始终 `+5 -5`，不受折叠影响。
 
-## 5. 残余项
+## 5. 多文件部分写入
+
+两个文件同一补丁，`ro/b.txt` 设为只读：
+
+| 检查项 | 结果 |
+|---|---|
+| Edit 面板标题 | `partial` |
+| `a.txt` | ✓ success，`+1 -1`，实际写入 `patchedA` |
+| `ro/b.txt` | ✗ error，EACCES，文件保持 `world` |
+| 错误信息 | `Failed to write ro/b.txt… Sections already written: a.txt.` |
+| 统计 | 失败文件不虚报成功，显示 `+0 -0` |
+
+结论：多文件部分写入按文件区分成功/失败，未把整个工具误报成功。
+
+## 6. Stale anchor 错误视图
+
+- 使用伪造 `#0000` tag。
+- EditView 显示 `error`、文件路径、`Edit rejected` 与当前 hash/上下文。
+- 文件未被修改。
+- 错误文本同时出现在工具块与错误视图，存在重复但信息一致。
+
+## 7. 残余项
 
 | 项 | 状态 |
 |---|---|
-| 多文件部分写入的真实 TUI 展示 | 仅单测 `PatcherPartialWriteError` / details |
+| create | Hashline 明确不支持新建文件（提示使用 `write`），不属于 hashline Edit 范围 |
+| delete / move | 真机文件效果通过：`REM` 后文件消失，`MV b.txt` 后文件移动；面板截图未捕获 |
 | 旧 Session 回放 | 未回放真实历史 session 文件 |
-| create/delete/move 的真实 TUI | adapter/单测覆盖，未单独截图 |
 | 主题切换截图 | 未做逐主题截图 |
-| stale anchor / 空 diff | 单测覆盖，未单独真实 TUI |
+| not_written / unknown 状态真机 | 单测覆盖，未注入真实未尝试区段 |
 
 因此 G2 标记为“部分通过（核心回归通过）”，不宣称完整 G2。
