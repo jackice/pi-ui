@@ -1,0 +1,38 @@
+{
+  "name": "@jackice/pi-ui",
+  "version": "0.1.0",
+  "description": "Terminal UI components for Pi extensions: theme mapping, ANSI-safe layout, panels, and status lines.",
+  "type": "module",
+  "license": "MIT",
+  "author": "jackice",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "gallery": "tsx examples/gallery.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-tui": "^1.6.0"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-tui": "1.6.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
