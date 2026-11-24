@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`snapshots > CodeFrame 1`] = `
+"1 1 │   export function run() {
+2   │ - →   return oldValue;
+  2 │ + →   return newValue;
+3 3 │   }"
+`;
+
+exports[`snapshots > EditView 1`] = `
+"╭─ Edit ──────────────────────────────────────────────────── partial ╮
+│ ✓ update good.ts src/good.ts                                 +1 -1 │
+│ 1   │ - old                                                        │
+│   1 │ + new                                                        │
+│                                                                    │
+│ ✗ edit bad.ts src/bad.ts                                     error │
+│ EACCES                                                             │
+╰────────────────────────────────────────────────────────────────────╯"
+`;
+
+exports[`snapshots > Panel 1`] = `
+"╭─ Edit ──────────────────────── +2 -1 ╮
+│ line one                             │
+│ 中文内容                             │
+│ 🙂 emoji                             │
+╰──────────────────────────────────────╯"
+`;
+
+exports[`snapshots > StatusLine 1`] = `"● hashline src/very/long/path/file.ts        +2 -1"`;
+
+exports[`snapshots > TodoView 1`] = `
+"╭─ Session TODO ────────────────────────────────────── 1/4 ╮
+│ ├─ ▾ Phase 1  1/3                                        │
+│ │  ├─   ✓ done                                           │
+│ │  ├─   ▸ current                                        │
+│ │  └─   ○ pending                                        │
+│ └─ ▸ Phase 2  0/1                                        │
+╰──────────────────────────────────────────────────────────╯"
+`;
