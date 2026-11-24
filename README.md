@@ -84,9 +84,9 @@ Update components with `setProps` or `setTheme` and invalidate them with `invali
 ## Compatibility and limitations
 
 - Compatibility has been verified only against Pi `1.6.0`.
-- `EditView` consumes Hashline `details` version 1. The published `@jackice/hashline@0.1.1` does not provide it; the local `0.1.2` candidate has been verified.
+- `EditView` consumes Hashline `details` version 1. Install [`@jackice/hashline@0.1.2`](https://github.com/jackice/hashline#use-as-a-pi-extension) to use it; Hashline `0.1.1` does not provide these details.
 - Fall back to the original text renderer when `adaptHashlineDetails` returns `undefined` for older or unsupported results.
-- `TodoView` only renders task data. The `session_todo` tool, store, `/session-todo` command, and widget integration belong to the separate `@jackice/pi-session-todo` extension.
+- `TodoView` only renders task data. Install [`@jackice/pi-session-todo@0.1.1`](https://github.com/jackice/pi-session-todo#installation) for the `session_todo` tool, persistence, `/session-todo` command, and HUD.
 - `ApprovalView` returns a UI choice, not authorization to run a command. The separate approval extension is not part of this preview and remains pending security review.
 
 See the [integration examples](docs/integration.md), [compatibility notes](docs/compatibility.md), and [implementation status](docs/implementation-status.md).

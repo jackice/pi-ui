@@ -96,10 +96,11 @@
 | 从 tarball 启动 Pi 1.6.0 | `bash`、`hashline`、`session_todo` 活动且来源为安装包；TODO HUD 可见。仅验证初始化，不替代审批行为验收 |
 | 打包后回滚演练 | 同一历史 Session 移除 Edit resolver 后恢复原始工具文本；TODO `hide/status/show` 保持 revision 与任务计数，Session 文件字节未变 |
 | `@jackice/pi-ui@next` 公开安装 | 解析到 `0.4.2`；`--strict-peer-deps` 安装、5 个入口导入及 Panel 渲染通过，npm 完整性值与提交的 tarball 一致 |
+| `pi install` 公开扩展共装 | 干净 Pi 1.6.0 通过；`@jackice/hashline@0.1.2` 与 `@jackice/pi-session-todo@0.1.1` 均活动，`/session-todo` 已注册且 HUD 可见；npm 完整性与上传包一致 |
 
 ## 阻塞与决策
 
-1. `@jackice/pi-ui@0.4.2` 已作为独立 UI 预览发布，不包含审批 Gate。npm 的 `next` 与 `latest` 都指向 `0.4.2`，移除 `latest` 被注册表拒绝（HTTP 403）。其余候选包未发布；公开 npm 的 Hashline 仍为 `0.1.1`。
+1. 独立预览已公开：`pi-ui@0.4.2`、`hashline@0.1.2`、`pi-session-todo@0.1.1`。Hashline 的 `latest` 保留 `0.1.1`；TODO 的 `next` 和 `latest` 均为 `0.1.1`，缺少运行时依赖的 `0.1.0` 已标记弃用。审批扩展未发布。
 2. G3 残余：`/tree` UI 本身、切换期间排队写入；非阻断。
 3. G4 残余：取得独立安全复审结论。可信 RPC 审批未接入，在支持矩阵中显式标为默认拒绝。
 4. P5 残余：优化后无采样器的两轮 PTY 对照已验证时延及 RSS 检查点，尚未复测系统峰值；长会话缩放仍高于默认文本基线。
