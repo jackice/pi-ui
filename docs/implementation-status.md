@@ -97,16 +97,17 @@
 | 打包后回滚演练 | 同一历史 Session 移除 Edit resolver 后恢复原始工具文本；TODO `hide/status/show` 保持 revision 与任务计数，Session 文件字节未变 |
 | `@jackice/pi-ui@next` 公开安装 | 解析到 `0.4.2`；`--strict-peer-deps` 安装、5 个入口导入及 Panel 渲染通过，npm 完整性值与提交的 tarball 一致 |
 | `pi install` 公开扩展共装 | 干净 Pi 1.6.0 通过；`@jackice/hashline@0.1.2` 与 `@jackice/pi-session-todo@0.1.1` 均活动，`/session-todo` 已注册且 HUD 可见；npm 完整性与上传包一致 |
-| 原生 `edit` 使用 `pi-ui`（dotfiles，可选） | `PI_NATIVE_EDIT_DIFF=1 pi`；Pi 1.6.0 真实编辑生成补丁后 PTY 回放，验证中文多 hunk、旧结果、无效补丁及两路开关独立；默认仍保持原生样式 |
+| 原生 `edit` 使用 `pi-ui`（dotfiles） | `settings.json` 的 `editDiff.nativeEdit`；启用、关闭、缺省及日常配置均经 Pi 1.6.0 PTY 验证，无需环境变量 |
 | 审批候选 `--omit=peer` 隔离启动 | 修正运行时依赖后加载通过；未执行 Bash 命令，不替代复审 |
+| 审批原生选择列表（候选） | `--approval-ui native`；隔离 Pi 1.6.0 PTY 使用真实 Gate 与惰性输入，验证默认拒绝、arm、滚动、Esc、取消、超时和等待队列归零，无命令执行 |
 
 ## 阻塞与决策
 
 1. 独立预览已公开：`pi-ui@0.4.2`、`hashline@0.1.2`、`pi-session-todo@0.1.1`。Hashline 的 `latest` 保留 `0.1.1`；TODO 的 `next` 和 `latest` 均为 `0.1.1`，缺少运行时依赖的 `0.1.0` 已标记弃用。审批扩展未发布。
 2. G3 残余：`/tree` UI 本身、切换期间排队写入；非阻断。
-3. G4 残余：取得独立安全复审结论。可信 RPC 审批未接入，在支持矩阵中显式标为默认拒绝。
+3. G4 独立 Gate 复审判定阻断接入：手工 Bash 最终参数一致性、按请求绑定的批准凭据和启动前取消仍未闭环。可信 RPC 未接入，保持默认拒绝。
 4. P5 残余：优化后无采样器的两轮 PTY 对照已验证时延及 RSS 检查点，尚未复测系统峰值；长会话缩放仍高于默认文本基线。
-5. G5 未通过：Approval 仍缺保留 Gate 的安全回滚。Pi 1.6.0 真机确认 `ctx.ui.confirm()` 初始选中 `Yes`，Enter 立即返回批准；可取消但不能直接替换现有 UI。需完成支持矩阵、最终评审与发布检查；不发布 v1.0。
+5. G5 未通过：原生选择列表回滚候选已完成隔离 PTY 验证；待关闭 G4 阻断、验收真实会话切换与重载，并完成支持矩阵与最终发布检查。不发布 v1.0。
 
 ## 复现
 
