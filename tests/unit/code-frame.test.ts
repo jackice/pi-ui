@@ -26,12 +26,21 @@ const sample = hunk([
 ]);
 
 describe("CodeFrame", () => {
-  it("renders both-gutter line numbers and change markers", () => {
+  it("renders one gutter and omits repeated numbers on adjacent rows", () => {
     const lines = new CodeFrame(plainTheme(), { hunks: [sample] }).render(80).map(stripTerminalSequences);
-    expect(lines[0]).toContain("1 1 │   one");
-    expect(lines[1]).toContain("2   │ - two");
-    expect(lines[2]).toContain("  2 │ + TWO");
-    expect(lines[3]).toContain("3 3 │   three");
+    expect(lines).toEqual(["1 │   one", "2 │ - two", "  │ + TWO", "3 │   three"]);
+  });
+
+  it("uses new context numbers after edits and retains old-only context numbers", () => {
+    const shifted = hunk([
+      { kind: "removed", oldLine: 8, content: "removed" },
+      { kind: "added", newLine: 9, content: "added" },
+      { kind: "context", oldLine: 9, newLine: 10, content: "shifted" },
+      { kind: "gap", content: "" },
+      { kind: "context", oldLine: 10, content: "old result" },
+    ]);
+    const lines = new CodeFrame(plainTheme(), { hunks: [shifted] }).render(80).map(stripTerminalSequences);
+    expect(lines).toEqual([" 8 │ - removed", " 9 │ + added", "10 │   shifted", "   │ ⋯", "10 │   old result"]);
   });
 
   it("wraps without faking new line numbers", () => {

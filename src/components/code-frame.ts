@@ -60,19 +60,16 @@ export class CodeFrame {
     const hunks = this.props.hunks;
 
     let totalLines = 0;
-    let maxOld = 0;
-    let maxNew = 0;
+    let maxNumber = 0;
     for (const hunk of hunks) {
       for (const line of hunk.lines) {
         if (line.kind !== "gap") totalLines++;
-        if (line.oldLine !== undefined) maxOld = Math.max(maxOld, line.oldLine);
-        if (line.newLine !== undefined) maxNew = Math.max(maxNew, line.newLine);
+        maxNumber = Math.max(maxNumber, lineNumber(line) ?? 0);
       }
     }
 
-    const oldWidth = Math.max(1, String(maxOld).length);
-    const newWidth = Math.max(1, String(maxNew).length);
-    const prefixWidth = oldWidth + newWidth + 6;
+    const numberWidth = String(maxNumber).length;
+    const prefixWidth = numberWidth + 5;
     const compact = width < prefixWidth + 4;
 
     const rows: DiffLine[] = [];
@@ -107,11 +104,16 @@ export class CodeFrame {
     const folded = !expanded && (hiddenLines > 0 || hiddenHunks > 0);
 
     const lines: string[] = [];
+    let previousNumber: number | undefined;
     for (const line of rows) {
       if (line.kind === "gap") {
-        lines.push(this.renderGap(width, oldWidth, newWidth, compact));
+        lines.push(this.renderGap(width, numberWidth, compact));
+        previousNumber = undefined;
       } else {
-        lines.push(...this.renderLine(line, width, oldWidth, newWidth, prefixWidth, compact, tabWidth));
+        const number = lineNumber(line);
+        const label = number === undefined || number === previousNumber ? "" : String(number);
+        lines.push(...this.renderLine(line, width, label, numberWidth, compact, tabWidth));
+        previousNumber = number;
       }
     }
 
@@ -124,9 +126,9 @@ export class CodeFrame {
     return lines;
   }
 
-  private renderGap(width: number, oldWidth: number, newWidth: number, compact: boolean): string {
+  private renderGap(width: number, numberWidth: number, compact: boolean): string {
     if (compact) return truncate(this.theme.fg("muted", "⋯"), width);
-    const blank = " ".repeat(oldWidth + newWidth + 2);
+    const blank = " ".repeat(numberWidth + 1);
     return truncate(
       blank + this.theme.fg("border", "│") + " " + this.theme.fg("muted", "⋯"),
       width,
@@ -136,9 +138,8 @@ export class CodeFrame {
   private renderLine(
     line: DiffLine,
     width: number,
-    oldWidth: number,
-    newWidth: number,
-    prefixWidth: number,
+    label: string,
+    numberWidth: number,
     compact: boolean,
     tabWidth: number,
   ): string[] {
@@ -155,23 +156,19 @@ export class CodeFrame {
       return out.map((value) => truncate(value, width));
     }
 
-    const contentWidth = Math.max(1, width - prefixWidth);
+    const contentWidth = width - numberWidth - 5;
     const parts = wrap(content, contentWidth);
-    const oldText = line.oldLine === undefined ? " ".repeat(oldWidth) : String(line.oldLine).padStart(oldWidth);
-    const newText = line.newLine === undefined ? " ".repeat(newWidth) : String(line.newLine).padStart(newWidth);
-    const numbers =
-      this.theme.fg("muted", oldText) +
-      " " +
-      this.theme.fg("muted", newText) +
+    const gutter =
+      this.theme.fg("muted", label.padStart(numberWidth)) +
       " " +
       this.theme.fg("border", "│") +
       " ";
-    const first = numbers + this.theme.fg(tone, marker) + " " + this.theme.fg(tone, parts[0] ?? "");
+    const first = gutter + this.theme.fg(tone, marker) + " " + this.theme.fg(tone, parts[0] ?? "");
     const out = [truncate(first, width)];
 
     if (parts.length > 1) {
       const continuation =
-        " ".repeat(oldWidth + newWidth + 2) +
+        " ".repeat(numberWidth + 1) +
         this.theme.fg("border", "│") +
         " " +
         this.theme.fg("muted", "↪") +
@@ -182,6 +179,10 @@ export class CodeFrame {
     }
     return out;
   }
+}
+
+function lineNumber(line: DiffLine): number | undefined {
+  return line.kind === "removed" ? line.oldLine : line.newLine ?? line.oldLine;
 }
 
 function positive(value: number | undefined, fallback: number): number {

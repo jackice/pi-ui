@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- Edit diff 改为单列行号，相邻重复行号只显示一次。删除行使用旧行号，新增行和上下文优先使用新行号。
+
 ## 0.5.0
 
 - 新增 `SegmentBar` / `layoutSegmentBar`：左右分段、弹性 gauge、优先级降级、宽窄矩阵安全、确定性布局
