@@ -1,7 +1,7 @@
 {
   "name": "@jackice/pi-ui",
-  "version": "0.4.2",
-  "description": "Terminal UI components for Pi extensions: theme mapping, ANSI-safe layout, panels, status lines, diff frames, Edit/TODO/Approval views.",
+  "version": "0.5.0",
+  "description": "Terminal UI components for Pi extensions: theme mapping, ANSI-safe layout, panels, status lines, segment bars, gauges, diff frames, Edit/TODO/Approval views.",
   "type": "module",
   "license": "MIT",
   "author": "jackice",

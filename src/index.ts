@@ -12,6 +12,23 @@ export {
 } from "./core/layout.js";
 export { Panel, type PanelProps } from "./components/panel.js";
 export { StatusLine, type StatusLineProps } from "./components/status-line.js";
+export {
+  layoutSegmentBar,
+  SegmentBar,
+  type GaugeSlot,
+  type SegmentBarOptions,
+  type SegmentBarResult,
+  type SegmentBarWidths,
+  type SegmentSpec,
+  type SegmentVariant,
+} from "./components/segment-bar.js";
+export { renderSeparator, separatorText, type SeparatorStyle } from "./components/separator.js";
+export {
+  InlineGauge,
+  type GaugeMarker,
+  type InlineGaugeOptions,
+  type InlineGaugeProps,
+} from "./components/inline-gauge.js";
 export { CodeFrame, type CodeFrameProps } from "./components/code-frame.js";
 export { TreeList, type TreeNode, type TreeListProps } from "./components/tree-list.js";
 export { adaptHashlineDetails, type AdaptOptions } from "./diff/adapter.js";

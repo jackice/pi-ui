@@ -1,6 +1,17 @@
 # 实施状态
 
-最后更新：2026-11-24
+最后更新：2026-11-25
+
+## v0.5.0 Prompt 组件增量
+
+| 任务 | 状态 | 证据 | 备注 |
+|---|---|---|---|
+| P1-Prompt SegmentBar | 完成 | `src/components/segment-bar.ts`、9 个测试 | 优先级/compact/gauge 降级、确定性 |
+| P1-Prompt Separator | 完成 | `src/components/separator.ts`、4 个测试 | 五种样式，`none` 零宽 |
+| P1-Prompt InlineGauge | 完成 | `src/components/inline-gauge.ts`、9 个测试 | 未知/?、0/50/110%、标记冲突、ASCII、缓存 |
+| G1-Prompt | 通过（本地） | `pnpm test` 16 文件 / 106 用例；`pnpm build` 成功 | npm 发布未执行 |
+| P1-03 仓库闭环 | 部分 | `docs/pi-ui-implementation-plan.md` v1.5、pi-prompt `docs/pi-prompt-implementation-plan.md` v1.3 | commit SHA 待首次提交后记录 |
+
 
 | 任务 | 状态 | 证据 | 备注 |
 |---|---|---|---|
@@ -43,8 +54,10 @@
 | 命令 | 结果 |
 |---|---|
 | `pnpm test` | 13 个测试文件，74 个测试通过 |
-| `pnpm typecheck` | 通过 |
-| `pnpm build` | 生成 `dist/`，含 `./diff`、`./views/edit`、`./views/todo`、`./views/approval` 子路径 |
+| `pnpm test`（v0.5.0） | 16 个测试文件，106 个测试通过（新增 22 个） |
+| `pnpm typecheck` | 通过（v0.5.0） |
+| `pnpm build` | 生成 `dist/`，含 `./diff`、`./views/edit`、`./views/todo`、`./views/approval`，并新增 `dist/components/{segment-bar,separator,inline-gauge}.js` |
+| 根导出消费 | 在 pi-prompt 中 `import('@jackice/pi-ui')`：SegmentBar/layoutSegmentBar/InlineGauge/renderSeparator 均为 true |
 | `pnpm gallery` | 离线渲染 Edit/partial/Panel/StatusLine，40/80/120/240 列 |
 | `pnpm pack` + 真实 Pi TUI | Edit 面板显示 `success · 3ms`、`+1 -1`、`- world`、`+ patched`；文件已写入 |
 | Hashline `bun test` | 14 个文件 / 285 个测试通过 |

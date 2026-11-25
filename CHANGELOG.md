@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0
+
+- 新增 `SegmentBar` / `layoutSegmentBar`：左右分段、弹性 gauge、优先级降级、宽窄矩阵安全、确定性布局
+- 新增 `renderSeparator` / `separatorText`：ascii/pipe/slash/dot/none 五种分隔符
+- 新增 `InlineGauge`：未知/0-100/>100 百分比、标签避让、缓存、ASCII 与阈值标记
+- 三个组件通过根导出 `.` 暴露；既有 `.`、`./diff`、`./views/*` 入口保持兼容
+- 测试增至 16 个文件 / 106 个用例
+
 ## 0.4.2
 
 - 优化带行号栏的 ANSI 行宽计算；中文、emoji 和其他转义仍使用 Pi TUI 的宽度规则。

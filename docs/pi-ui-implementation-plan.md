@@ -1,9 +1,9 @@
 # Pi UI Kit — 完整实施计划
 
-- 文档版本：v1.2
-- 日期：2026-11-24
-- 状态：待 Phase 0 验证；共享基础与各功能按各自门禁进入开发
-- 目标：在不 Fork 原生 Pi 的前提下，以统一组件库实现 OMP 风格 Edit、TODO HUD 和危险操作确认框，并兼容现有 `@jackice/hashline`。
+- 文档版本：v1.5（v1.2 基线 + Prompt v1.3 共享组件增量）
+- 日期：2026-11-25
+- 状态：Edit/TODO/Approval 主路径已交付；v1.5 新增 SegmentBar/Separator/InlineGauge 并已通过单元测试与本地构建
+- 目标：在不 Fork 原生 Pi 的前提下，以统一组件库实现 OMP 风格 Edit、TODO HUD 和危险操作确认框，并兼容现有 `@jackice/hashline`；为独立 `@jackice/pi-prompt` 提供纯渲染组件。
 - 交付形式：单仓库、单核心 npm library，业务扩展保持独立；不要求一次发布多个 package。
 
 ## 1. 范围与架构决策
@@ -512,3 +512,96 @@ Gate 为每次请求创建独立的决策等待。宿主通过 `ctx.ui.custom<Ap
 ## 12. 给实施 Agent 的启动指令
 
 以本 Plan 为实施基线。先完成 Phase 0，只进行源码核对与最小无害探针，输出真实兼容性报告和阻断项；先通过 G0-Base 再进入 P1，各功能通过自身门禁后再冻结接口并执行阶段 TDD，保持原生 Pi 与 Hashline 业务行为不变。优先复用原生 API，以三个真实垂直切片验证组件抽象，禁止提前构建未使用的通用框架。每阶段由独立 Reviewer 审查，记录命令、测试结果、commit 和剩余风险。只有所有验收门禁通过才报告完成，不将未执行测试或未验证能力表述为通过。
+
+## 13. v1.5 — Prompt 共享组件增量
+
+本增量对应 `@jackice/pi-prompt` Plan v1.3；pi-ui 仍然只负责纯渲染，不注册 editor/footer、不读 Session/Git、不持有 AgentSession、不控制权限。
+
+### 13.1 新增公共 API（根导出 `.`）
+
+```ts
+type SeparatorStyle = "ascii" | "pipe" | "slash" | "dot" | "none";
+function separatorText(style: SeparatorStyle): string;
+function renderSeparator(style: SeparatorStyle, theme: UiTheme, tone?: Tone): string;
+
+interface SegmentVariant { text: string; tone?: Tone }
+interface SegmentSpec {
+  id: string;
+  side: "left" | "right";
+  priority: number; // 越大越晚被压缩
+  full: SegmentVariant;
+  compact?: SegmentVariant;
+  min?: SegmentVariant;
+}
+interface GaugeSlot { minWidth?: number; render(width: number): string }
+interface SegmentBarOptions {
+  width: number;
+  left?: readonly SegmentSpec[];
+  right?: readonly SegmentSpec[];
+  gauge?: GaugeSlot;
+  separator?: SeparatorStyle;
+  theme: UiTheme;
+}
+interface SegmentBarResult {
+  line: string;
+  left: string;
+  gauge: string;
+  right: string;
+  hiddenIds: readonly string[];
+  widths: { left: number; gauge: number; right: number };
+}
+function layoutSegmentBar(options: SegmentBarOptions): SegmentBarResult;
+class SegmentBar { render(): SegmentBarResult; setOptions(...); setTheme(...); invalidate(): void }
+
+interface GaugeMarker { percent: number; glyph: string; tone: Tone }
+interface InlineGaugeProps {
+  percent?: number;
+  label?: string;
+  endLabel?: string;
+  markers?: readonly GaugeMarker[];
+  tone: Tone;
+}
+class InlineGauge {
+  constructor(theme: UiTheme, props: InlineGaugeProps, options?: { ascii?: boolean });
+  render(width: number): string;
+  setProps(...); setTheme(...); setAscii(...); invalidate(): void
+}
+```
+
+### 13.2 布局语义
+
+1. 完整分段优先；随后有 compact 变体的分段（path/session 等）先压缩。
+2. gauge 用剩余宽度，低于 `minWidth` 前先牺牲低优先级分段；同级右侧先让出，再按配置顺序后进先出。
+3. 仍不满足时隐藏低优先级段，最后才截断；`width<=0` 返回空。
+4. 分隔符只出现在实际相邻分段之间；外部文本经过 `sanitizeLine` 并压成单行。
+5. gauge 标签优先保留百分比，空间不足时先丢 endLabel；未知百分比显示 `?`，不绘制比例；>100% 保留标签并 clamp 填充长度。
+
+### 13.3 版本与兼容
+
+- 版本：`0.5.0`；已有 `.`、`./diff`、`./views/edit`、`./views/todo`、`./views/approval` 入口不变。
+- `@jackice/pi-prompt` 依赖 `^0.5.0`；pi-ui 先发布，pi-prompt 才能安装。
+- 0.x 不承诺跨 minor 兼容；0.4.2 仅作为回归基线。
+
+### 13.4 验收
+
+| 项 | 证据 |
+|---|---|
+| 组件纯函数、无 I/O/定时器/状态采集 | 源码审阅 |
+| 0/1/2/10/40/80/120/240 宽度无越界 | `tests/unit/segment-bar.test.ts`、`inline-gauge.test.ts`、既有 `widths.test.ts` |
+| 未知/0/100/110%、标签冲突、标记不重叠 | `tests/unit/inline-gauge.test.ts` |
+| 既有 Edit/TODO/Approval 无回归 | `pnpm test` 全量 106 用例 |
+| 构建与导出 | `pnpm build` 生成 `dist/components/{segment-bar,separator,inline-gauge}.js` |
+
+未完成：真实 Prompt 扩展的长会话性能、IME/鼠标手工验收；这些由 pi-prompt P6 负责，不改变本库纯组件边界。
+
+## 14. v1.5 DoD 增量
+
+| ID | 验收条件 | 证据 |
+|---|---|---|
+| A13 | SegmentBar/Separator/InlineGauge 仅通过根导出暴露，旧入口不变 | `dist/`、`package.json` exports、导入测试 |
+| A14 | 布局确定性、ANSI 安全、宽度矩阵与极限值覆盖 | 单元测试 + 构建 |
+| A15 | pi-prompt 消费已发布版本，最低/锁定版本均通过导入 | pi-prompt package fixture / 安装验证 |
+| A16 | 两份 Plan 在各自仓库落盘，版本/导出/peer 范围一致 | `docs/pi-ui-implementation-plan.md`（本文件 v1.5）、pi-prompt `docs/pi-prompt-implementation-plan.md` v1.3 |
+
+A16 的“最低/锁定版本”当前仅验证本地 0.5.0 构建；npm 发布与远端最低版本 CI 尚未执行，不得宣称已发布。
+

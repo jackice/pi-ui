@@ -63,6 +63,9 @@ export default function (pi: ExtensionAPI) {
 | `truncate` / `pad` / `wrap` / `middleTruncate` | Column-aware text helpers. `pad` hard-truncates text that does not fit. |
 | `Panel` | Left and right titles, rounded or square borders, a borderless mode, horizontal and vertical padding, and width-based caching. |
 | `StatusLine` | Icon, title, middle-truncated path, and right-aligned metadata. Prioritizes metadata at narrow widths. |
+| `SegmentBar` / `layoutSegmentBar` | Left/right segments, elastic center gauge, priority-based compaction, deterministic ANSI-safe layout. |
+| `renderSeparator` / `separatorText` | `ascii`, `pipe`, `slash`, `dot`, and `none` separators. |
+| `InlineGauge` | Elastic character gauge with unknown/0–100/>100 percent, label avoidance, markers, ASCII fallback, and caching. |
 | `CodeFrame` | Old and new line numbers, diff markers and colors, visible tabs, hanging indents, and folding notices. |
 | `adaptHashlineDetails(details)` | Converts Hashline `details` version 1 to an `EditViewModel`. Returns `undefined` for unsupported versions. |
 | `EditView` | Multi-file diffs and partial, failed, or unwritten edit results, with folding and source truncation notices. |
