@@ -97,6 +97,8 @@
 | 打包后回滚演练 | 同一历史 Session 移除 Edit resolver 后恢复原始工具文本；TODO `hide/status/show` 保持 revision 与任务计数，Session 文件字节未变 |
 | `@jackice/pi-ui@next` 公开安装 | 解析到 `0.4.2`；`--strict-peer-deps` 安装、5 个入口导入及 Panel 渲染通过，npm 完整性值与提交的 tarball 一致 |
 | `pi install` 公开扩展共装 | 干净 Pi 1.6.0 通过；`@jackice/hashline@0.1.2` 与 `@jackice/pi-session-todo@0.1.1` 均活动，`/session-todo` 已注册且 HUD 可见；npm 完整性与上传包一致 |
+| 原生 `edit` 使用 `pi-ui`（dotfiles，可选） | `PI_NATIVE_EDIT_DIFF=1 pi`；Pi 1.6.0 真实编辑生成补丁后 PTY 回放，验证中文多 hunk、旧结果、无效补丁及两路开关独立；默认仍保持原生样式 |
+| 审批候选 `--omit=peer` 隔离启动 | 修正运行时依赖后加载通过；未执行 Bash 命令，不替代复审 |
 
 ## 阻塞与决策
 
@@ -104,7 +106,7 @@
 2. G3 残余：`/tree` UI 本身、切换期间排队写入；非阻断。
 3. G4 残余：取得独立安全复审结论。可信 RPC 审批未接入，在支持矩阵中显式标为默认拒绝。
 4. P5 残余：优化后无采样器的两轮 PTY 对照已验证时延及 RSS 检查点，尚未复测系统峰值；长会话缩放仍高于默认文本基线。
-5. G5 未通过：Approval 还没有可验证的原生确认回滚开关；需收口支持矩阵、最终评审与发布检查。不发布 v1.0。
+5. G5 未通过：Approval 仍缺保留 Gate 的安全回滚。Pi 1.6.0 真机确认 `ctx.ui.confirm()` 初始选中 `Yes`，Enter 立即返回批准；可取消但不能直接替换现有 UI。需完成支持矩阵、最终评审与发布检查；不发布 v1.0。
 
 ## 复现
 
