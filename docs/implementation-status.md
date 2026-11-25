@@ -10,7 +10,7 @@
 | P1-Prompt Separator | 完成 | `src/components/separator.ts`、4 个测试 | 五种样式，`none` 零宽 |
 | P1-Prompt InlineGauge | 完成 | `src/components/inline-gauge.ts`、9 个测试 | 未知/?、0/50/110%、标记冲突、ASCII、缓存 |
 | G1-Prompt | 通过（本地） | `pnpm test` 16 文件 / 106 用例；`pnpm build` 成功 | npm 发布未执行 |
-| P1-03 仓库闭环 | 部分 | `docs/pi-ui-implementation-plan.md` v1.5、pi-prompt `docs/pi-prompt-implementation-plan.md` v1.3 | commit SHA 待首次提交后记录 |
+| P1-03 仓库闭环 | 部分 | `docs/pi-ui-implementation-plan.md` v1.5、pi-prompt `docs/pi-prompt-implementation-plan.md` v1.3 | pi-ui commits `132e0f5`、`77d8d7d`；pi-prompt commit `6efca93` |
 
 
 | 任务 | 状态 | 证据 | 备注 |
