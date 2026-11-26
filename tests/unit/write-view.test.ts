@@ -88,3 +88,16 @@ describe("WriteView", () => {
     expect(new WriteView(plainTheme(), { model: model(), expanded: false }).render(0)).toEqual([]);
   });
 });
+
+describe("WriteView safety", () => {
+  it("does not fake hidden line counts beyond 20k", async () => {
+    const { WriteView } = await import("../../src/views/write.ts");
+    const content = Array.from({ length: 30000 }, (_, index) => `line ${index + 1}`).join("\n");
+    const text = new WriteView(plainTheme(), {
+      model: { status: "success", path: "big.txt", content, argsComplete: true, lineCount: 30000 },
+      expanded: false,
+    }).render(60).join("\n");
+    expect(text).toContain("UI safety limit");
+    expect(text).not.toContain("more lines");
+  });
+});

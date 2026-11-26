@@ -91,11 +91,16 @@ export class WriteView {
         showLineNumbers: config.lineNumbers !== false,
         preview: {
           direction: streaming ? "tail" : "head",
-          maxLogicalLines: previewLines,
+          maxLogicalLines: limited.truncated ? contentLines.length : previewLines,
           maxVisualRows: config.maxPreviewRows ?? 18,
           expanded,
         },
       }));
+      if (limited.truncated) {
+        children.push({
+          render: (inner: number) => [truncateNotice(this.theme, "UI safety limit — available result not fully shown", inner)],
+        });
+      }
     }
 
     return new Panel(this.theme, {

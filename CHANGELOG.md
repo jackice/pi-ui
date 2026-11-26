@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.6
+
+- WriteView：内容超过 20k 行时不再伪造精确隐藏行数，改用安全上限提示。
+
 ## 0.6.5
 
 - WriteView：expanded error 显示请求正文；单个尾随 LF 不多计空行；多行诊断逐行净化并保留开头。
