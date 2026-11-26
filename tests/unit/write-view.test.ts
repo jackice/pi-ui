@@ -36,6 +36,41 @@ describe("WriteView", () => {
     expect(lines.join("\n")).toContain("line 1");
   });
 
+  it("limits folded highlighting to the preview and caches repeated renders", () => {
+    const huge = Array.from({ length: 30000 }, (_, index) => `line ${index + 1}`).join("\n");
+    let calls = 0;
+    let seen = "";
+    const view = new WriteView(plainTheme(), {
+      model: model({ content: huge, lineCount: 30000 }),
+      expanded: false,
+      config: {
+        highlighter: (code) => {
+          calls += 1;
+          seen = code;
+          return code.split("\n").map((line) => `\u001b[32m${line}\u001b[0m`);
+        },
+      },
+    });
+    const first = view.render(60);
+    const second = view.render(60);
+    expect(first.join("\n")).toContain("\u001b[32m");
+    expect(seen.split("\n")).toHaveLength(6);
+    expect(calls).toBe(1);
+    expect(second.join("\n")).toBe(first.join("\n"));
+  });
+
+  it("skips highlighting when the preview exceeds 256 KiB", () => {
+    const long = Array.from({ length: 6 }, () => "x".repeat(50000)).join("\n");
+    let calls = 0;
+    const lines = new WriteView(plainTheme(), {
+      model: model({ content: long, lineCount: 6 }),
+      expanded: false,
+      config: { highlighter: (code) => { calls += 1; return code.split("\n"); } },
+    }).render(40);
+    expect(calls).toBe(0);
+    expect(lines.join("\n")).toContain("xxx");
+  });
+
   it("renders head preview with path and line count", () => {
     const lines = new WriteView(plainTheme(), { model: model(), expanded: false }).render(60);
     const text = lines.join("\n");

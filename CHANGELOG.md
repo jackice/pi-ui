@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+- 高亮输入限制 10,000 行 / 256 KiB；折叠 Write 只高亮 6/12 行并复用组件缓存。
+- UI safety limit 时不再显示虚假的 “N more lines”。
+
 ## 0.7.0
 
 - `CodeBlock`/`WriteView`/`ReadView` 接受注入式高亮；只处理当前预览行（展开上限 200），异常/行数不符回退纯文本。

@@ -43,6 +43,7 @@ const STATUS: Readonly<Record<ToolStatus, { glyph: string; tone: Tone }>> = {
 export class WriteView {
   private props: WriteViewProps;
   private theme: UiTheme;
+  private cachedHighlight: { language: string | undefined; source: string; rows: readonly string[] } | undefined;
 
   constructor(theme: UiTheme, props: WriteViewProps) {
     this.theme = theme;
@@ -51,10 +52,12 @@ export class WriteView {
 
   setProps(props: WriteViewProps): void {
     this.props = props;
+    this.cachedHighlight = undefined;
   }
 
   setTheme(theme: UiTheme): void {
     this.theme = theme;
+    this.cachedHighlight = undefined;
   }
 
   invalidate(): void {}
@@ -65,6 +68,14 @@ export class WriteView {
     const meta: string[] = [];
     if (model.lineCount !== undefined) meta.push(`${model.lineCount} lines`);
     const children: Renderable[] = [];
+    const injected = config.highlighter;
+    const highlighter: Highlight | undefined = injected === undefined ? undefined : (code, language) => {
+      const cached = this.cachedHighlight;
+      if (cached !== undefined && cached.language === language && cached.source === code) return cached.rows;
+      const rows = injected(code, language);
+      this.cachedHighlight = { language, source: code, rows };
+      return rows;
+    };
 
     if (config.showPath !== false && model.path !== undefined) {
       children.push({
@@ -89,13 +100,14 @@ export class WriteView {
       children.push(new CodeBlock(this.theme, {
         lines: contentLines.map((text, index) => ({ text, number: index + 1 })),
         ...(model.language === undefined ? {} : { language: model.language }),
-        ...(config.highlighter === undefined ? {} : { highlight: config.highlighter }),
+        ...(highlighter === undefined ? {} : { highlight: highlighter }),
         showLineNumbers: config.lineNumbers !== false,
         preview: {
           direction: streaming ? "tail" : "head",
-          maxLogicalLines: limited.truncated ? contentLines.length : previewLines,
+          maxLogicalLines: previewLines,
           maxVisualRows: config.maxPreviewRows ?? 18,
           expanded,
+          ...(limited.truncated ? { hideCount: true } : {}),
         },
       }));
       if (limited.truncated) {

@@ -12,9 +12,13 @@ export interface PreviewPolicy {
   maxLogicalLines?: number;
   maxVisualRows: number;
   expanded: boolean;
+  hideCount?: boolean;
 }
 
 export type Highlight = (code: string, language: string | undefined) => readonly string[];
+
+const HIGHLIGHT_MAX_LINES = 10_000;
+const HIGHLIGHT_MAX_BYTES = 256 * 1024;
 
 export interface CodeBlockProps {
   lines: readonly SourceLine[];
@@ -27,6 +31,7 @@ export interface CodeBlockProps {
 export class CodeBlock {
   private props: CodeBlockProps;
   private theme: UiTheme;
+  private cachedHighlight: { language: string | undefined; source: string; rows: readonly string[] } | undefined;
 
   constructor(theme: UiTheme, props: CodeBlockProps) {
     this.theme = theme;
@@ -35,10 +40,12 @@ export class CodeBlock {
 
   setProps(props: Partial<CodeBlockProps>): void {
     this.props = { ...this.props, ...props };
+    this.cachedHighlight = undefined;
   }
 
   setTheme(theme: UiTheme): void {
     this.theme = theme;
+    this.cachedHighlight = undefined;
   }
 
   render(width: number): readonly string[] {
@@ -71,11 +78,19 @@ export class CodeBlock {
 
     const highlightLimit = preview.expanded ? Math.min(selected.length, 200) : selected.length;
     let highlighted: readonly string[] | undefined;
-    if (this.props.highlight !== undefined && highlightLimit > 0) {
+    if (this.props.highlight !== undefined && highlightLimit > 0 && highlightLimit <= HIGHLIGHT_MAX_LINES) {
       try {
         const source = selected.slice(0, highlightLimit).map((line) => sanitizeLine(line.text)).join("\n");
-        const result = this.props.highlight(source, this.props.language);
-        if (result.length === highlightLimit) highlighted = result;
+        if (utf8Bytes(source) <= HIGHLIGHT_MAX_BYTES) {
+          const cached = this.cachedHighlight;
+          const result = cached !== undefined && cached.language === this.props.language && cached.source === source
+            ? cached.rows
+            : this.props.highlight(source, this.props.language);
+          if (result.length === highlightLimit) {
+            highlighted = result;
+            this.cachedHighlight = { language: this.props.language, source, rows: result };
+          }
+        }
       } catch {
         // 高亮失败时使用纯文本。
       }
@@ -122,7 +137,7 @@ export class CodeBlock {
       visible = preview.direction === "head" ? rows.slice(0, maxRows) : rows.slice(rows.length - maxRows);
     }
     const truncated = hidden > 0 || visualHidden > 0 || safety;
-    const summaryText = safety
+    const summaryText = safety || preview.hideCount === true
       ? "UI safety limit — available result not fully shown"
       : hidden > 0 && visualHidden === 0
         ? `… ${hidden} more lines`
