@@ -1,0 +1,61 @@
+import { describe, expect, it } from "vitest";
+
+import { displayWidth } from "../../src/core/ansi.ts";
+import { plainTheme } from "../../src/core/theme.ts";
+import { BashView, type BashViewModel } from "../../src/views/bash.ts";
+
+function model(patch: Partial<BashViewModel> = {}): BashViewModel {
+  return {
+    status: "success",
+    command: "pnpm test",
+    output: Array.from({ length: 20 }, (_, index) => `row ${index + 1}`).join("\n"),
+    ...patch,
+  };
+}
+
+describe("BashView", () => {
+  it("renders command and tail output inside one card", () => {
+    const lines = new BashView(plainTheme(), { model: model(), expanded: false }).render(60);
+    const text = lines.join("\n");
+    expect(lines[0]).toContain("Bash");
+    expect(lines[0]).toContain("✓");
+    expect(text).toContain("pnpm test");
+    expect(text).toContain("row 20");
+    expect(text).not.toContain("row 1\n");
+    expect(text).toContain("more rows");
+    for (const line of lines) expect(displayWidth(line)).toBeLessThanOrEqual(60);
+  });
+
+  it("expanded shows all output rows", () => {
+    const lines = new BashView(plainTheme(), { model: model(), expanded: true }).render(60).join("\n");
+    expect(lines).toContain("row 1");
+    expect(lines).toContain("row 20");
+    expect(lines).not.toContain("more rows");
+  });
+
+  it("shows truncation and full output path notices", () => {
+    const text = new BashView(plainTheme(), {
+      model: model({
+        output: "short",
+        truncation: { totalLines: 2100, outputLines: 2000 },
+        fullOutputPath: "/tmp/full.log",
+      }),
+      expanded: false,
+    }).render(70).join("\n");
+    expect(text).toContain("2100");
+    expect(text).toContain("/tmp/full.log");
+  });
+
+  it("omits output section when empty and preserves error status", () => {
+    const lines = new BashView(plainTheme(), {
+      model: model({ status: "error", output: "" }),
+      expanded: false,
+    }).render(50);
+    expect(lines[0]).toContain("✗");
+    expect(lines.join("\n")).not.toContain("Output");
+  });
+
+  it("returns no rows for zero width", () => {
+    expect(new BashView(plainTheme(), { model: model(), expanded: false }).render(0)).toEqual([]);
+  });
+});

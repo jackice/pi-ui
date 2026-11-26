@@ -27,6 +27,10 @@
 - 组件只接收已净化的行与主题；不解析工具协议、不执行 I/O、不注册 timer。
 - 高亮由调用方注入已验证行；组件不 import Pi coding-agent。
 
+## 已实现 View
+
+- `BashView`（`src/views/bash.ts`）：命令 6 行 head、输出 12 行 tail、截断/全量路径提示、状态与耗时；Gallery 有 fixture，单测覆盖折叠/展开/空输出/错误/零宽。
+
 ## 后续
 
 T2-02…T2-05 按本审计实现；每项先写失败测试。版本号在实现前检查 registry 再冻结。
