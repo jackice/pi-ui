@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0
+
+- `CodeBlock`/`WriteView`/`ReadView` 接受注入式高亮；只处理当前预览行（展开上限 200），异常/行数不符回退纯文本。
+- `Highlight` 类型公开。
+
 ## 0.6.9
 
 - 全无编号的 ReadView 模型仍走 head 12/24 预览，不再把整段正文当 metadata 输出。

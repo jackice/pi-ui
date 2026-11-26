@@ -14,9 +14,12 @@ export interface PreviewPolicy {
   expanded: boolean;
 }
 
+export type Highlight = (code: string, language: string | undefined) => readonly string[];
+
 export interface CodeBlockProps {
   lines: readonly SourceLine[];
   language?: string;
+  highlight?: Highlight;
   showLineNumbers: boolean;
   preview: PreviewPolicy;
 }
@@ -66,6 +69,18 @@ export class CodeBlock {
     selected = bounded;
     if (selected.length === 0) return [];
 
+    const highlightLimit = preview.expanded ? Math.min(selected.length, 200) : selected.length;
+    let highlighted: readonly string[] | undefined;
+    if (this.props.highlight !== undefined && highlightLimit > 0) {
+      try {
+        const source = selected.slice(0, highlightLimit).map((line) => sanitizeLine(line.text)).join("\n");
+        const result = this.props.highlight(source, this.props.language);
+        if (result.length === highlightLimit) highlighted = result;
+      } catch {
+        // 高亮失败时使用纯文本。
+      }
+    }
+
     const digits = showLineNumbers
       ? Math.max(1, ...selected.map((line) => (line.number === null ? 1 : String(line.number).length)))
       : 0;
@@ -73,7 +88,7 @@ export class CodeBlock {
     const available = Math.max(1, limit - gutter);
     const rows: string[] = [];
     const charCap = UI_MAX_LINES * available;
-    for (const line of selected) {
+    for (const [lineIndex, line] of selected.entries()) {
       if (rows.length >= UI_MAX_LINES) {
         safety = true;
         break;
@@ -82,8 +97,11 @@ export class CodeBlock {
       if (boundedLine.truncated) safety = true;
       const limited = takeLines(boundedLine.text, UI_MAX_LINES);
       if (limited.truncated) safety = true;
+      const styledPieces = highlighted?.[lineIndex] !== undefined && !boundedLine.truncated && !limited.truncated
+        ? (highlighted[lineIndex] ?? "").split("\n")
+        : undefined;
       for (const [pieceIndex, piece] of limited.lines.entries()) {
-        const visuals = wrap(sanitizeLine(piece), available);
+        const visuals = wrap(styledPieces?.[pieceIndex] ?? sanitizeLine(piece), available);
         if (rows.length + visuals.length > UI_MAX_LINES) {
           rows.push(...visuals.slice(0, UI_MAX_LINES - rows.length));
           safety = true;

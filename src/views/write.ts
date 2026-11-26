@@ -1,6 +1,6 @@
 import { middleTruncate, sanitizeLine, truncate } from "../core/ansi.js";
 import { UI_MAX_LINES, takeLines } from "../core/limits.js";
-import { CodeBlock } from "../components/code-block.js";
+import { CodeBlock, type Highlight } from "../components/code-block.js";
 import { Panel } from "../components/panel.js";
 import type { Renderable } from "../core/layout.js";
 import type { Tone, UiTheme } from "../core/theme.js";
@@ -22,6 +22,7 @@ export interface WriteViewConfig {
   maxPreviewRows?: number;
   lineNumbers?: boolean;
   showPath?: boolean;
+  highlighter?: Highlight;
 }
 
 export interface WriteViewProps {
@@ -88,6 +89,7 @@ export class WriteView {
       children.push(new CodeBlock(this.theme, {
         lines: contentLines.map((text, index) => ({ text, number: index + 1 })),
         ...(model.language === undefined ? {} : { language: model.language }),
+        ...(config.highlighter === undefined ? {} : { highlight: config.highlighter }),
         showLineNumbers: config.lineNumbers !== false,
         preview: {
           direction: streaming ? "tail" : "head",

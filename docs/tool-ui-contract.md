@@ -43,3 +43,7 @@ T2-02…T2-05 按本审计实现；每项先写失败测试。版本号在实现
 ## ReadView (0.6.7)
 
 `ReadView` 只消费 `ReadViewModel`：成功/错误状态、`source`（native/hashline）、`contentKind`、带可选真实行号的 `lines`、`truncation` 与 `rawFallback`。`number: null` 的元数据行不渲染 gutter；没有 `lines` 时只显示 `rawFallback`；不推断文件总行数，图片由宿主处理。
+
+## Highlight injection (0.7.0)
+
+`CodeBlock`、`WriteView`、`ReadView` 接受 `Highlight`；只对当前选中预览行调用（展开最多 200 行），返回行数不一致或抛错时纯文本。调用方负责传入受信任的 highlighter；源文本在调用前已清洗。

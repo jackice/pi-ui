@@ -72,6 +72,7 @@ export default function (pi: ExtensionAPI) {
 | `BashView` | Command/status/duration/cwd optional, tail output, truncation and full-output-path notices, with presentation config. |
 | `WriteView` | Path, optional line count, head/tail source preview, streaming state, and error notices. |
 | `ReadView` | Real line numbers, optional range, head preview, truncation notice, raw fallback, and image-free metadata rows. |
+| `Highlight` | Optional `(code, language) => string[]` injection for bounded syntax highlighting; failures fall back to plain text. |
 | `CodeFrame` | Old and new line numbers, diff markers and colors, visible tabs, hanging indents, and folding notices. |
 | `adaptHashlineDetails(details)` | Converts Hashline `details` version 1 to an `EditViewModel`. Returns `undefined` for unsupported versions. |
 | `EditView` | Multi-file diffs and partial, failed, or unwritten edit results, with folding and source truncation notices. |

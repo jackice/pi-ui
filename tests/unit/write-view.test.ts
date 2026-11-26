@@ -11,6 +11,31 @@ function model(patch: Partial<WriteViewModel> = {}): WriteViewModel {
 }
 
 describe("WriteView", () => {
+  it("injects a bounded highlighter for the preview only", () => {
+    let seen = "";
+    const lines = new WriteView(plainTheme(), {
+      model: model(),
+      expanded: false,
+      config: {
+        highlighter: (code) => {
+          seen = code;
+          return code.split("\n").map((line) => `\u001b[31m${line}\u001b[0m`);
+        },
+      },
+    }).render(60);
+    expect(lines.join("\n")).toContain("\u001b[31m");
+    expect(seen.split("\n")).toHaveLength(6);
+  });
+
+  it("falls back to plain text when the highlighter throws", () => {
+    const lines = new WriteView(plainTheme(), {
+      model: model(),
+      expanded: false,
+      config: { highlighter: () => { throw new Error("boom"); } },
+    }).render(60);
+    expect(lines.join("\n")).toContain("line 1");
+  });
+
   it("renders head preview with path and line count", () => {
     const lines = new WriteView(plainTheme(), { model: model(), expanded: false }).render(60);
     const text = lines.join("\n");

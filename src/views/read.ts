@@ -1,5 +1,5 @@
 import { middleTruncate, sanitizeLine, truncate } from "../core/ansi.js";
-import { CodeBlock } from "../components/code-block.js";
+import { CodeBlock, type Highlight } from "../components/code-block.js";
 import { OutputBlock } from "../components/output-block.js";
 import { Panel } from "../components/panel.js";
 import type { Renderable } from "../core/layout.js";
@@ -40,6 +40,7 @@ export interface ReadViewConfig {
   maxPreviewRows?: number;
   lineNumbers?: boolean;
   showPath?: boolean;
+  highlighter?: Highlight;
 }
 
 export interface ReadViewProps {
@@ -112,6 +113,7 @@ export class ReadView {
       children.push(new CodeBlock(this.theme, {
         lines: contentLines,
         ...(model.language === undefined ? {} : { language: model.language }),
+        ...(config.highlighter === undefined ? {} : { highlight: config.highlighter }),
         showLineNumbers: !allUnnumbered && config.lineNumbers !== false,
         preview: {
           direction: "head",
