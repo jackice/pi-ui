@@ -47,6 +47,22 @@ describe("ReadView", () => {
     expect(text).toContain("raw diagnostic text");
   });
 
+  it("does not render a gutter for null-numbered metadata", () => {
+    const text = new ReadView(plainTheme(), {
+      model: model({ lines: [{ text: "line 5", number: 5 }, { text: "[2094 more lines in file. Use offset=8 to continue.]", number: null }] }),
+      expanded: false,
+    }).render(70).join("\n");
+    expect(text).toContain("line 5");
+    expect(text).toContain("[2094 more lines");
+    expect(text).not.toMatch(/\b6\s+\[2094/);
+  });
+
+  it("renders an empty model without a fabricated row", () => {
+    const text = new ReadView(plainTheme(), { model: model({ lines: [], rawFallback: undefined }), expanded: false }).render(40).join("\n");
+    expect(text).toContain("Read");
+    expect(text).not.toMatch(/\b1\s/);
+  });
+
   it("returns no rows for zero width", () => {
     expect(new ReadView(plainTheme(), { model: model(), expanded: false }).render(0)).toEqual([]);
   });

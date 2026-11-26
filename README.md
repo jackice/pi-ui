@@ -70,6 +70,8 @@ export default function (pi: ExtensionAPI) {
 | `CodeBlock` | Source lines with trusted numbers, head/tail logical and visual previews, wrapping, and safety notices. |
 | `OutputBlock` | Whitelisted SGR output, head/tail previews, CRLF normalization, bidi stripping, and 1 MiB / 20k line safety limits. |
 | `BashView` | Command/status/duration/cwd optional, tail output, truncation and full-output-path notices, with presentation config. |
+| `WriteView` | Path, optional line count, head/tail source preview, streaming state, and error notices. |
+| `ReadView` | Real line numbers, optional range, head preview, truncation notice, raw fallback, and image-free metadata rows. |
 | `CodeFrame` | Old and new line numbers, diff markers and colors, visible tabs, hanging indents, and folding notices. |
 | `adaptHashlineDetails(details)` | Converts Hashline `details` version 1 to an `EditViewModel`. Returns `undefined` for unsupported versions. |
 | `EditView` | Multi-file diffs and partial, failed, or unwritten edit results, with folding and source truncation notices. |

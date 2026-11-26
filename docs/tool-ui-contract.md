@@ -39,3 +39,7 @@
 ## 后续
 
 T2-02…T2-05 按本审计实现；每项先写失败测试。版本号在实现前检查 registry 再冻结。
+
+## ReadView (0.6.7)
+
+`ReadView` 只消费 `ReadViewModel`：成功/错误状态、`source`（native/hashline）、`contentKind`、带可选真实行号的 `lines`、`truncation` 与 `rawFallback`。`number: null` 的元数据行不渲染 gutter；没有 `lines` 时只显示 `rawFallback`；不推断文件总行数，图片由宿主处理。
