@@ -1,0 +1,110 @@
+import { middleTruncate, sanitizeLine } from "../core/ansi.js";
+import { CodeBlock } from "../components/code-block.js";
+import { Panel } from "../components/panel.js";
+import type { Renderable } from "../core/layout.js";
+import type { Tone, UiTheme } from "../core/theme.js";
+import type { ToolStatus } from "../components/tool-card.js";
+
+export interface WriteViewModel {
+  status: ToolStatus;
+  path?: string;
+  content?: string;
+  argsComplete: boolean;
+  lineCount?: number;
+  language?: string;
+  notices?: readonly string[];
+}
+
+export interface WriteViewConfig {
+  previewLines?: number;
+  streamingPreviewLines?: number;
+  maxPreviewRows?: number;
+  lineNumbers?: boolean;
+  showPath?: boolean;
+}
+
+export interface WriteViewProps {
+  model: WriteViewModel;
+  expanded: boolean;
+  config?: WriteViewConfig;
+}
+
+const STATUS: Readonly<Record<ToolStatus, { glyph: string; tone: Tone }>> = {
+  pending: { glyph: "○", tone: "muted" },
+  streaming: { glyph: "●", tone: "accent" },
+  running: { glyph: "●", tone: "accent" },
+  success: { glyph: "✓", tone: "success" },
+  error: { glyph: "✗", tone: "error" },
+  unknown: { glyph: "?", tone: "muted" },
+};
+
+export class WriteView {
+  private props: WriteViewProps;
+  private theme: UiTheme;
+
+  constructor(theme: UiTheme, props: WriteViewProps) {
+    this.theme = theme;
+    this.props = props;
+  }
+
+  setProps(props: WriteViewProps): void {
+    this.props = props;
+  }
+
+  setTheme(theme: UiTheme): void {
+    this.theme = theme;
+  }
+
+  invalidate(): void {}
+
+  render(width: number): readonly string[] {
+    const { model, expanded, config = {} } = this.props;
+    const status = STATUS[model.status];
+    const meta: string[] = [];
+    if (model.lineCount !== undefined) meta.push(`${model.lineCount} lines`);
+    const children: Renderable[] = [];
+
+    if (config.showPath !== false && model.path !== undefined) {
+      children.push({
+        render: (inner: number) => [this.theme.fg("muted", middleTruncate(sanitizeLine(model.path ?? ""), inner))],
+      });
+    }
+
+    const notices = model.notices ?? [];
+    if (notices.length > 0) {
+      children.push({
+        render: (inner: number) => notices.map((notice) => truncateNotice(this.theme, notice, inner)),
+      });
+    }
+
+    const showContent = model.status !== "error" && (model.content?.length ?? 0) > 0;
+    if (showContent) {
+      const streaming = !model.argsComplete && model.status !== "success";
+      const previewLines = streaming ? config.streamingPreviewLines ?? 12 : config.previewLines ?? 6;
+      children.push(new CodeBlock(this.theme, {
+        lines: (model.content ?? "").split("\n").map((text, index) => ({ text, number: index + 1 })),
+        ...(model.language === undefined ? {} : { language: model.language }),
+        showLineNumbers: config.lineNumbers !== false,
+        preview: {
+          direction: streaming ? "tail" : "head",
+          maxLogicalLines: previewLines,
+          maxVisualRows: config.maxPreviewRows ?? 18,
+          expanded,
+        },
+      }));
+    }
+
+    return new Panel(this.theme, {
+      title: "Write",
+      titleRight: [this.theme.fg(status.tone, status.glyph), ...meta].join(" · "),
+      tone: status.tone,
+      border: "rounded",
+      paddingX: 1,
+      children,
+    }).render(width);
+  }
+}
+
+function truncateNotice(theme: UiTheme, notice: string, width: number): string {
+  return theme.fg("muted", middleTruncate(sanitizeLine(notice), Math.max(1, width)));
+}

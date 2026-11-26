@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4
+
+- 新增 `WriteView`：路径/行数、head 6 行与 streaming tail 12 行、错误隐藏正文、行号与提示。
+
 ## 0.6.3
 
 - 单个多行输入在 split/wrap 前按 20k 逻辑行限流。

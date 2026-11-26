@@ -32,6 +32,10 @@
 - `BashView`（`src/views/bash.ts`）：命令段可选（产品 slot C 由原生 call 独占，`showCommand:false`）；输出 tail 默认 12 行；截断/全量路径提示按宽度 middle-truncate；`showDuration/showCwd/outputRows/ansi/showTruncation/showFullOutputPath` 可配置；Gallery 与单测覆盖折叠/展开/空输出/错误/窄宽/安全上限。
 - `command.highlight` 在产品 slot C 下不生效，当前标 unsupported；`command.previewRows` 仅 standalone BashView 可见。
 
+## WriteView
+
+- `WriteView`（`src/views/write.ts`）：path/lineCount、head 6 与 streaming tail 12、行号、错误隐藏正文；产品 slot C 下 path 由原生 call 独占（`showPath:false`）。
+
 ## 后续
 
 T2-02…T2-05 按本审计实现；每项先写失败测试。版本号在实现前检查 registry 再冻结。
