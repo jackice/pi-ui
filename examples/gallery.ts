@@ -6,6 +6,7 @@ import {
   Panel,
   plainTheme,
   StatusLine,
+  ReadView,
   TodoView,
   WriteView,
   type EditViewModel,
@@ -183,6 +184,12 @@ function gallery(width: number): void {
     expanded: false,
   });
   show("Write view fixture", write.render(width), width);
+
+  const read = new ReadView(theme, {
+    model: { status: 'success', path: 'src/app.ts', source: 'native', contentKind: 'code', lines: Array.from({ length: 8 }, (_, index) => ({ text: `line ${index + 1}`, number: index + 1 })) },
+    expanded: false,
+  });
+  show("Read view fixture", read.render(width), width);
 
   const todo = new TodoView(theme, { model: todoModel, maxLines: 14 });
   show("TODO HUD fixture", todo.render(width), width);

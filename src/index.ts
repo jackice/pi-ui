@@ -48,6 +48,7 @@ export type {
 export { EditView, type EditViewProps } from "./views/edit.js";
 export { BashView, type BashViewModel, type BashTruncation, type BashViewProps } from "./views/bash.js";
 export { WriteView, type WriteViewModel, type WriteViewConfig, type WriteViewProps } from "./views/write.js";
+export { ReadView, type ReadContentKind, type ReadLine, type ReadTruncation, type ReadViewModel, type ReadViewConfig, type ReadViewProps } from "./views/read.js";
 export {
   TodoView,
   type TodoPhaseView,

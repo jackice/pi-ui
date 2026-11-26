@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.7
+
+- 新增 `ReadView`：真实行号/范围、head 12 行、native/hashline 原文回退、truncation 提示；图片由宿主原生处理。
+- Gallery 增加 Read fixture。
+
 ## 0.6.6
 
 - WriteView：内容超过 20k 行时不再伪造精确隐藏行数，改用安全上限提示。
