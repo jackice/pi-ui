@@ -1,4 +1,5 @@
 import { normalizeWidth, truncate, wrap } from "../core/ansi.js";
+import { UI_MAX_BYTES, UI_MAX_LINES, clampChars, clampUtf8, utf8Bytes } from "../core/limits.js";
 import type { UiTheme } from "../core/theme.js";
 import { sanitizeSgr } from "../core/safe-sgr.js";
 
@@ -39,25 +40,37 @@ export class OutputBlock {
     const source: string[] = [];
     let bytes = 0;
     for (const row of this.props.rows) {
-      if (source.length >= 20000 || bytes >= 1024 * 1024) {
+      if (source.length >= UI_MAX_LINES || bytes >= UI_MAX_BYTES) {
         safety = true;
         break;
       }
-      source.push(row);
-      bytes += row.length;
+      const remaining = UI_MAX_BYTES - bytes;
+      const clamped = clampUtf8(row, remaining);
+      if (clamped.truncated) safety = true;
+      source.push(clamped.text);
+      bytes += utf8Bytes(clamped.text);
     }
     const rows: string[] = [];
+    const charCap = UI_MAX_LINES * limit;
     for (const row of source) {
       const parts = row.split(/\r\n|\n/);
-      if (parts.at(-1) === "") parts.pop();
-      for (const part of parts) {
-        if (rows.length >= 20000) {
+      if (parts.length > 1 && parts.at(-1) === "") parts.pop();
+      for (const raw of parts) {
+        if (rows.length >= UI_MAX_LINES) {
           safety = true;
           break;
         }
-        rows.push(...wrap(sanitizeSgr(part, this.props.ansi), limit));
+        const bounded = clampChars(raw, charCap);
+        if (bounded.truncated) safety = true;
+        const visual = wrap(sanitizeSgr(bounded.text, this.props.ansi), limit);
+        if (rows.length + visual.length > UI_MAX_LINES) {
+          rows.push(...visual.slice(0, UI_MAX_LINES - rows.length));
+          safety = true;
+          break;
+        }
+        rows.push(...visual);
       }
-      if (safety) break;
+      if (safety && rows.length >= UI_MAX_LINES) break;
     }
     if (rows.length === 0) return [];
     const shown = this.props.preview.expanded

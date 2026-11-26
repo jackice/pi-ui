@@ -84,6 +84,23 @@ describe("CodeBlock", () => {
     expect(rows.join("\n")).toContain("UI safety limit");
   });
 
+  it("caps a single oversized CJK line and keeps explicit offsets", () => {
+    const huge = new CodeBlock(plainTheme(), {
+      lines: [{ text: "中".repeat(400_000), number: 1 }],
+      showLineNumbers: false,
+      preview: { direction: "head", maxVisualRows: 5, expanded: false },
+    }).render(40);
+    expect(huge.join("\n")).toContain("UI safety limit");
+
+    const offsets = new CodeBlock(plainTheme(), {
+      lines: [{ text: "five", number: 5 }, { text: "nine", number: 9 }],
+      showLineNumbers: true,
+      preview: { direction: "head", maxVisualRows: 10, expanded: true },
+    }).render(30);
+    expect(offsets[0]).toContain("5");
+    expect(offsets[1]).toContain("9");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new CodeBlock(plainTheme(), { lines, showLineNumbers: true, preview: preview("head") }).render(0)).toEqual([]);
   });

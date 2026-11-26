@@ -35,6 +35,15 @@ describe("ToolCard", () => {
     }
   });
 
+  it("preserves whitelisted SGR in section rows", () => {
+    const lines = new ToolCard(plainTheme(), {
+      title: "Bash",
+      status: "success",
+      sections: [{ rows: ["\u001b[31mred\u001b[0m"] }],
+    }).render(40);
+    expect(lines.join("\n")).toContain("\u001b[31m");
+  });
+
   it("omits empty sections and sanitizes control characters", () => {
     const lines = new ToolCard(plainTheme(), {
       title: "Write\u001b[31m",

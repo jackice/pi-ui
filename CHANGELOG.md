@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.2
+
+- 单行超大输入按 UTF-8 字节与安全字素截断，wrap 20k 视觉行即停。
+- OutputBlock 保留显式空行；BashView 的 cwd 独立成行并按宽度保留 basename。
+- fullOutputPath 按 Output 段实际宽度 middle-truncate。
+
 ## 0.6.1
 
 - BashView：命令由原生 call 独占、截断不再误报、fullOutputPath 净化、CRLF 归一、展示配置生效。

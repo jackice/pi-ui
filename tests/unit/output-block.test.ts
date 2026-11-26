@@ -74,6 +74,23 @@ describe("OutputBlock", () => {
     expect(rendered.join("\n")).toContain("UI safety limit");
   });
 
+  it("caps a single oversized line and keeps explicit empty rows", () => {
+    const huge = new OutputBlock(plainTheme(), {
+      rows: ["x".repeat(1_100_000)],
+      ansi: false,
+      preview: { direction: "head", maxVisualRows: 5, expanded: false },
+    }).render(80);
+    expect(huge.join("\n")).toContain("UI safety limit");
+
+    const rows = new OutputBlock(plainTheme(), {
+      rows: ["a", "", "b"],
+      ansi: false,
+      preview: { direction: "head", maxVisualRows: 10, expanded: true },
+    }).render(20);
+    expect(rows).toHaveLength(3);
+    expect(rows[1]?.trim()).toBe("");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new OutputBlock(plainTheme(), { rows: ["x"], ansi: false, preview: preview("head") }).render(0)).toEqual([]);
   });

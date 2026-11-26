@@ -22,6 +22,7 @@ export interface BashViewModel {
   output: string;
   durationMs?: number;
   cwd?: string;
+  cwdKind?: "execution" | "session";
   truncation?: BashTruncation;
   fullOutputPath?: string;
 }
@@ -88,8 +89,14 @@ export class BashView {
     const status = STATUS[model.status];
     const meta: string[] = [];
     if (config.showDuration !== false && model.durationMs !== undefined) meta.push(formatDuration(model.durationMs));
-    if (config.showCwd === true && model.cwd !== undefined) meta.push(sanitizeLine(model.cwd));
     const children: Renderable[] = [];
+
+    if (config.showCwd === true && model.cwd !== undefined) {
+      const label = model.cwdKind === "session" ? "session cwd" : "cwd";
+      children.push({
+        render: (inner: number) => [this.theme.fg("muted", `${label}  ${middleTruncate(sanitizeLine(model.cwd ?? ""), Math.max(1, inner - label.length - 2))}`)],
+      });
+    }
 
     if (showCommand && model.command !== undefined && model.command.length > 0) {
       children.push(section(this.theme, "Command", new CodeBlock(this.theme, {
@@ -108,11 +115,7 @@ export class BashView {
         notices.push(maxBytes === undefined ? "… output truncated at byte limit" : `… output truncated at ${maxBytes} bytes`);
       }
     }
-    if (config.showFullOutputPath !== false && model.fullOutputPath !== undefined) {
-      notices.push(`Full output: ${middleTruncate(sanitizeLine(model.fullOutputPath), 48)}`);
-    }
-
-    if (model.output.length > 0 || notices.length > 0) {
+    if (model.output.length > 0 || notices.length > 0 || (config.showFullOutputPath !== false && model.fullOutputPath !== undefined)) {
       const blocks: Renderable[] = [];
       if (model.output.length > 0) {
         blocks.push(new OutputBlock(this.theme, {
@@ -122,11 +125,17 @@ export class BashView {
         }));
       }
       children.push({
-        render: (inner: number) => [
-          this.theme.fg("accent", "Output"),
-          ...blocks.flatMap((block) => block.render(inner)),
-          ...notices.map((notice) => this.theme.fg("muted", notice)),
-        ],
+        render: (inner: number) => {
+          const lines = [
+            this.theme.fg("accent", "Output"),
+            ...blocks.flatMap((block) => block.render(inner)),
+            ...notices.map((notice) => this.theme.fg("muted", notice)),
+          ];
+          if (config.showFullOutputPath !== false && model.fullOutputPath !== undefined) {
+            lines.push(this.theme.fg("muted", `Full output: ${middleTruncate(sanitizeLine(model.fullOutputPath), Math.max(8, inner - 13))}`));
+          }
+          return lines;
+        },
       });
     }
 

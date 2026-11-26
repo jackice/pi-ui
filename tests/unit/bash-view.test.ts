@@ -112,6 +112,23 @@ describe("BashView", () => {
     expect(lines).not.toContain("row 17");
   });
 
+  it("keeps title and basename at narrow widths with long cwd/path", () => {
+    const text = new BashView(plainTheme(), {
+      model: model({
+        output: "x",
+        cwd: "/very/long/directory/structure/that/exceeds/the/width/project-name",
+        cwdKind: "execution",
+        fullOutputPath: "/very/long/directory/structure/that/exceeds/the/width/full-output.log",
+      }),
+      expanded: false,
+      config: { showCwd: true, showFullOutputPath: true },
+    }).render(40).join("\n");
+    expect(text).toContain("Bash");
+    expect(text).toContain("project-name");
+    expect(text).toContain("full-output.log");
+    for (const line of text.split("\n")) expect(displayWidth(line)).toBeLessThanOrEqual(40);
+  });
+
   it("returns no rows for zero width", () => {
     expect(new BashView(plainTheme(), { model: model(), expanded: false }).render(0)).toEqual([]);
   });

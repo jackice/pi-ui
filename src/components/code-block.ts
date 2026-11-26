@@ -1,4 +1,5 @@
 import { normalizeWidth, sanitizeLine, truncate, wrap } from "../core/ansi.js";
+import { UI_MAX_BYTES, UI_MAX_LINES, clampChars, clampUtf8, utf8Bytes } from "../core/limits.js";
 import type { UiTheme } from "../core/theme.js";
 
 export interface SourceLine {
@@ -50,11 +51,19 @@ export class CodeBlock {
       hidden = Math.max(0, all.length - max);
       selected = preview.direction === "head" ? all.slice(0, max) : all.slice(all.length - max);
     }
-    const bytes = selected.reduce((sum, line) => sum + line.text.length, 0);
-    if (selected.length > 20000 || bytes > 1024 * 1024) {
-      selected = preview.direction === "head" ? selected.slice(0, 20000) : selected.slice(selected.length - 20000);
-      safety = true;
+    const bounded: SourceLine[] = [];
+    let bytes = 0;
+    for (const line of selected) {
+      if (bounded.length >= UI_MAX_LINES || bytes >= UI_MAX_BYTES) {
+        safety = true;
+        break;
+      }
+      const clamped = clampUtf8(line.text, UI_MAX_BYTES - bytes);
+      if (clamped.truncated) safety = true;
+      bounded.push({ ...line, text: clamped.text });
+      bytes += utf8Bytes(clamped.text);
     }
+    selected = bounded;
     if (selected.length === 0) return [];
 
     const digits = showLineNumbers
@@ -63,8 +72,20 @@ export class CodeBlock {
     const gutter = showLineNumbers ? digits + 1 : 0;
     const available = Math.max(1, limit - gutter);
     const rows: string[] = [];
+    const charCap = UI_MAX_LINES * available;
     for (const line of selected) {
-      const visuals = wrap(sanitizeLine(line.text), available);
+      if (rows.length >= UI_MAX_LINES) {
+        safety = true;
+        break;
+      }
+      const boundedLine = clampChars(line.text, charCap);
+      if (boundedLine.truncated) safety = true;
+      const visuals = wrap(sanitizeLine(boundedLine.text), available);
+      if (rows.length + visuals.length > UI_MAX_LINES) {
+        rows.push(...visuals.slice(0, UI_MAX_LINES - rows.length));
+        safety = true;
+        break;
+      }
       for (const [index, visual] of visuals.entries()) {
         const prefix = showLineNumbers
           ? (index === 0 && line.number !== null ? String(line.number).padStart(digits) : " ".repeat(digits)) + " "

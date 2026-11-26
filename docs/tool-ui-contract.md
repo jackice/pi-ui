@@ -29,7 +29,8 @@
 
 ## 已实现 View
 
-- `BashView`（`src/views/bash.ts`）：命令 6 行 head、输出 12 行 tail、截断/全量路径提示、状态与耗时；Gallery 有 fixture，单测覆盖折叠/展开/空输出/错误/零宽。
+- `BashView`（`src/views/bash.ts`）：命令段可选（产品 slot C 由原生 call 独占，`showCommand:false`）；输出 tail 默认 12 行；截断/全量路径提示按宽度 middle-truncate；`showDuration/showCwd/outputRows/ansi/showTruncation/showFullOutputPath` 可配置；Gallery 与单测覆盖折叠/展开/空输出/错误/窄宽/安全上限。
+- `command.highlight` 在产品 slot C 下不生效，当前标 unsupported；`command.previewRows` 仅 standalone BashView 可见。
 
 ## 后续
 
