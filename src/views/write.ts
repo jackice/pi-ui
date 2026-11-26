@@ -23,6 +23,7 @@ export interface WriteViewConfig {
   lineNumbers?: boolean;
   showPath?: boolean;
   highlighter?: Highlight;
+  themeRevision?: () => string;
 }
 
 export interface WriteViewProps {
@@ -43,7 +44,7 @@ const STATUS: Readonly<Record<ToolStatus, { glyph: string; tone: Tone }>> = {
 export class WriteView {
   private props: WriteViewProps;
   private theme: UiTheme;
-  private cachedHighlight: { language: string | undefined; source: string; rows: readonly string[] } | undefined;
+  private cachedHighlight: { revision: string; language: string | undefined; source: string; rows: readonly string[] } | undefined;
 
   constructor(theme: UiTheme, props: WriteViewProps) {
     this.theme = theme;
@@ -69,11 +70,12 @@ export class WriteView {
     if (model.lineCount !== undefined) meta.push(`${model.lineCount} lines`);
     const children: Renderable[] = [];
     const injected = config.highlighter;
+    const revision = config.themeRevision?.() ?? '';
     const highlighter: Highlight | undefined = injected === undefined ? undefined : (code, language) => {
       const cached = this.cachedHighlight;
-      if (cached !== undefined && cached.language === language && cached.source === code) return cached.rows;
+      if (cached !== undefined && cached.revision === revision && cached.language === language && cached.source === code) return cached.rows;
       const rows = injected(code, language);
-      this.cachedHighlight = { language, source: code, rows };
+      this.cachedHighlight = { revision, language, source: code, rows };
       return rows;
     };
 

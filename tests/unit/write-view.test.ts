@@ -40,10 +40,12 @@ describe("WriteView", () => {
     const huge = Array.from({ length: 30000 }, (_, index) => `line ${index + 1}`).join("\n");
     let calls = 0;
     let seen = "";
+    let revision = "dark";
     const view = new WriteView(plainTheme(), {
       model: model({ content: huge, lineCount: 30000 }),
       expanded: false,
       config: {
+        themeRevision: () => revision,
         highlighter: (code) => {
           calls += 1;
           seen = code;
@@ -57,6 +59,9 @@ describe("WriteView", () => {
     expect(seen.split("\n")).toHaveLength(6);
     expect(calls).toBe(1);
     expect(second.join("\n")).toBe(first.join("\n"));
+    revision = "light";
+    view.render(60);
+    expect(calls).toBe(2);
   });
 
   it("skips highlighting when the preview exceeds 256 KiB", () => {
