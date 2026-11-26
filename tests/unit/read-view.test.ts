@@ -47,6 +47,13 @@ describe("ReadView", () => {
     expect(text).toContain("raw diagnostic text");
   });
 
+  it("keeps an all-null model within the preview budget", () => {
+    const unnumbered = Array.from({ length: 1000 }, (_, index) => ({ text: `raw ${index + 1}`, number: null }));
+    const rows = new ReadView(plainTheme(), { model: model({ lines: unnumbered }), expanded: false }).render(60);
+    expect(rows.length).toBeLessThanOrEqual(30);
+    expect(rows.join("\n")).toContain("raw 1");
+  });
+
   it("counts hidden rows from content only, not metadata", () => {
     const withNotice = [...lines, { text: "[2094 more lines in file. Use offset=8 to continue.]", number: null }];
     const text = new ReadView(plainTheme(), { model: model({ lines: withNotice }), expanded: false }).render(70).join("\n");

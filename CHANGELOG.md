@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.9
+
+- 全无编号的 ReadView 模型仍走 head 12/24 预览，不再把整段正文当 metadata 输出。
+
 ## 0.6.8
 
 - `ReadView` 将 null-number 元数据行移出 CodeBlock 计数，`… N more lines` 不再包含提示行。

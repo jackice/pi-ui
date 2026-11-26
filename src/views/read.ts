@@ -104,14 +104,15 @@ export class ReadView {
     }
 
     const lastNumbered = model.lines.reduce((last, line, index) => line.number === null ? last : index, -1);
-    const metadataIsTail = model.lines.slice(lastNumbered + 1).every((line) => line.number === null);
-    const contentLines = metadataIsTail ? model.lines.slice(0, lastNumbered + 1) : model.lines;
-    const metadataLines = metadataIsTail ? model.lines.slice(lastNumbered + 1) : [];
+    const allUnnumbered = model.lines.length > 0 && lastNumbered === -1;
+    const metadataIsTail = !allUnnumbered && model.lines.slice(lastNumbered + 1).every((line) => line.number === null);
+    const contentLines = allUnnumbered ? model.lines : metadataIsTail ? model.lines.slice(0, lastNumbered + 1) : model.lines;
+    const metadataLines = allUnnumbered ? [] : metadataIsTail ? model.lines.slice(lastNumbered + 1) : [];
     if (contentLines.length > 0) {
       children.push(new CodeBlock(this.theme, {
         lines: contentLines,
         ...(model.language === undefined ? {} : { language: model.language }),
-        showLineNumbers: config.lineNumbers !== false,
+        showLineNumbers: !allUnnumbered && config.lineNumbers !== false,
         preview: {
           direction: "head",
           maxLogicalLines: config.previewLines ?? 12,
