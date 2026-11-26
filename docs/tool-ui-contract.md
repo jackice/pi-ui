@@ -16,7 +16,7 @@
 ## 缺失能力（T2 新增）
 
 1. `ToolCard`：已实现（`src/components/tool-card.ts`），组合 `Panel`，覆盖标题、状态 glyph、meta、分区；单测覆盖宽度、空分区与 ESC 清理。
-2. `CodeBlock`：源码行、可信行号、head/tail 预览、折行、样式注入；不复用 `CodeFrame` 的 diff hunk 结构。
+2. `CodeBlock`：已实现（`src/components/code-block.ts`），源码行、可信行号、head/tail 预览、折行、样式注入；不复用 `CodeFrame` 的 diff hunk 结构。
 3. `OutputBlock`：受限 SGR 重建、tail/head 预览、隐藏计数；需要独立的安全显示路径，不能改已发布 `sanitizeText` 语义。
 4. `PathLabel`/`Preview`：优先纯函数；若只是单行组合则留在调用侧。
 
