@@ -47,6 +47,14 @@ describe("ReadView", () => {
     expect(text).toContain("raw diagnostic text");
   });
 
+  it("counts hidden rows from content only, not metadata", () => {
+    const withNotice = [...lines, { text: "[2094 more lines in file. Use offset=8 to continue.]", number: null }];
+    const text = new ReadView(plainTheme(), { model: model({ lines: withNotice }), expanded: false }).render(70).join("\n");
+    expect(text).toContain("[2094 more lines");
+    expect(text).toMatch(/… 8 more lines/);
+    expect(text).not.toMatch(/… 9 more lines/);
+  });
+
   it("does not render a gutter for null-numbered metadata", () => {
     const text = new ReadView(plainTheme(), {
       model: model({ lines: [{ text: "line 5", number: 5 }, { text: "[2094 more lines in file. Use offset=8 to continue.]", number: null }] }),

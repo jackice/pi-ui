@@ -1,4 +1,4 @@
-import { middleTruncate, sanitizeLine } from "../core/ansi.js";
+import { middleTruncate, sanitizeLine, truncate } from "../core/ansi.js";
 import { CodeBlock } from "../components/code-block.js";
 import { OutputBlock } from "../components/output-block.js";
 import { Panel } from "../components/panel.js";
@@ -103,9 +103,13 @@ export class ReadView {
       });
     }
 
-    if (model.lines.length > 0) {
+    const lastNumbered = model.lines.reduce((last, line, index) => line.number === null ? last : index, -1);
+    const metadataIsTail = model.lines.slice(lastNumbered + 1).every((line) => line.number === null);
+    const contentLines = metadataIsTail ? model.lines.slice(0, lastNumbered + 1) : model.lines;
+    const metadataLines = metadataIsTail ? model.lines.slice(lastNumbered + 1) : [];
+    if (contentLines.length > 0) {
       children.push(new CodeBlock(this.theme, {
-        lines: model.lines,
+        lines: contentLines,
         ...(model.language === undefined ? {} : { language: model.language }),
         showLineNumbers: config.lineNumbers !== false,
         preview: {
@@ -121,6 +125,12 @@ export class ReadView {
         ansi: false,
         preview: { direction: "head", maxVisualRows: config.maxPreviewRows ?? 24, expanded },
       }));
+    }
+
+    if (metadataLines.length > 0) {
+      children.push({
+        render: (inner: number) => metadataLines.map((line) => line.text === "" ? "" : this.theme.fg("muted", truncate(sanitizeLine(line.text), inner))),
+      });
     }
 
     const range = model.requestedOffset !== undefined || model.requestedLimit !== undefined

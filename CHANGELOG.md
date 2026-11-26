@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.8
+
+- `ReadView` 将 null-number 元数据行移出 CodeBlock 计数，`… N more lines` 不再包含提示行。
+
 ## 0.6.7
 
 - 新增 `ReadView`：真实行号/范围、head 12 行、native/hashline 原文回退、truncation 提示；图片由宿主原生处理。
