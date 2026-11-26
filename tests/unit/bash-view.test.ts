@@ -118,15 +118,24 @@ describe("BashView", () => {
         output: "x",
         cwd: "/very/long/directory/structure/that/exceeds/the/width/project-name",
         cwdKind: "execution",
-        fullOutputPath: "/very/long/directory/structure/that/exceeds/the/width/full-output.log",
+        fullOutputPath: "/very/long/directory/structure/that/exceeds/the/width/out.log",
       }),
       expanded: false,
       config: { showCwd: true, showFullOutputPath: true },
     }).render(40).join("\n");
     expect(text).toContain("Bash");
     expect(text).toContain("project-name");
-    expect(text).toContain("full-output.log");
+    expect(text).toContain("out.log");
     for (const line of text.split("\n")) expect(displayWidth(line)).toBeLessThanOrEqual(40);
+  });
+
+  it("keeps basename at 20 columns", () => {
+    const text = new BashView(plainTheme(), {
+      model: model({ output: "x", fullOutputPath: "/a/very/long/directory/out.log" }),
+      expanded: false,
+    }).render(20).join("\n");
+    expect(text).toContain("out.log");
+    for (const line of text.split("\n")) expect(displayWidth(line)).toBeLessThanOrEqual(20);
   });
 
   it("returns no rows for zero width", () => {

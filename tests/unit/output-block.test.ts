@@ -91,6 +91,15 @@ describe("OutputBlock", () => {
     expect(rows[1]?.trim()).toBe("");
   });
 
+  it("limits a single row with over 20k logical lines", () => {
+    const rendered = new OutputBlock(plainTheme(), {
+      rows: ["\n".repeat(1024 * 1024)],
+      ansi: false,
+      preview: { direction: "head", maxVisualRows: 5, expanded: true },
+    }).render(80);
+    expect(rendered.join("\n")).toContain("UI safety limit");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new OutputBlock(plainTheme(), { rows: ["x"], ansi: false, preview: preview("head") }).render(0)).toEqual([]);
   });

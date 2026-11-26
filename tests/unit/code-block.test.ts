@@ -101,6 +101,15 @@ describe("CodeBlock", () => {
     expect(offsets[1]).toContain("9");
   });
 
+  it("limits a single SourceLine with over 20k logical lines", () => {
+    const rendered = new CodeBlock(plainTheme(), {
+      lines: [{ text: "\n".repeat(1024 * 1024), number: 1 }],
+      showLineNumbers: false,
+      preview: { direction: "head", maxVisualRows: 5, expanded: true },
+    }).render(40);
+    expect(rendered.join("\n")).toContain("UI safety limit");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new CodeBlock(plainTheme(), { lines, showLineNumbers: true, preview: preview("head") }).render(0)).toEqual([]);
   });

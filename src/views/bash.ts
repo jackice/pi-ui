@@ -132,7 +132,8 @@ export class BashView {
             ...notices.map((notice) => this.theme.fg("muted", notice)),
           ];
           if (config.showFullOutputPath !== false && model.fullOutputPath !== undefined) {
-            lines.push(this.theme.fg("muted", `Full output: ${middleTruncate(sanitizeLine(model.fullOutputPath), Math.max(8, inner - 13))}`));
+            const prefix = inner >= 20 ? "Full output: " : "Out: ";
+            lines.push(this.theme.fg("muted", `${prefix}${middleTruncate(sanitizeLine(model.fullOutputPath), Math.max(4, inner - prefix.length))}`));
           }
           return lines;
         },

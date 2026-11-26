@@ -1,5 +1,5 @@
 import { normalizeWidth, sanitizeLine, truncate, wrap } from "../core/ansi.js";
-import { UI_MAX_BYTES, UI_MAX_LINES, clampChars, clampUtf8, utf8Bytes } from "../core/limits.js";
+import { UI_MAX_BYTES, UI_MAX_LINES, clampChars, clampUtf8, takeLines, utf8Bytes } from "../core/limits.js";
 import type { UiTheme } from "../core/theme.js";
 
 export interface SourceLine {
@@ -80,17 +80,21 @@ export class CodeBlock {
       }
       const boundedLine = clampChars(line.text, charCap);
       if (boundedLine.truncated) safety = true;
-      const visuals = wrap(sanitizeLine(boundedLine.text), available);
-      if (rows.length + visuals.length > UI_MAX_LINES) {
-        rows.push(...visuals.slice(0, UI_MAX_LINES - rows.length));
-        safety = true;
-        break;
-      }
-      for (const [index, visual] of visuals.entries()) {
-        const prefix = showLineNumbers
-          ? (index === 0 && line.number !== null ? String(line.number).padStart(digits) : " ".repeat(digits)) + " "
-          : "";
-        rows.push(this.theme.fg("text", prefix + visual));
+      const limited = takeLines(boundedLine.text, UI_MAX_LINES);
+      if (limited.truncated) safety = true;
+      for (const [pieceIndex, piece] of limited.lines.entries()) {
+        const visuals = wrap(sanitizeLine(piece), available);
+        if (rows.length + visuals.length > UI_MAX_LINES) {
+          rows.push(...visuals.slice(0, UI_MAX_LINES - rows.length));
+          safety = true;
+          break;
+        }
+        for (const [index, visual] of visuals.entries()) {
+          const prefix = showLineNumbers
+            ? (index === 0 && pieceIndex === 0 && line.number !== null ? String(line.number).padStart(digits) : " ".repeat(digits)) + " "
+            : "";
+          rows.push(this.theme.fg("text", prefix + visual));
+        }
       }
     }
     const maxRows = preview.expanded ? Number.POSITIVE_INFINITY : preview.maxVisualRows;

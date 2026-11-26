@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.3
+
+- 单个多行输入在 split/wrap 前按 20k 逻辑行限流。
+- emoji ZWJ/旗帜的安全字素截断；20 列 fullOutputPath 使用短前缀。
+
 ## 0.6.2
 
 - 单行超大输入按 UTF-8 字节与安全字素截断，wrap 20k 视觉行即停。

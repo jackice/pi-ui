@@ -1,5 +1,5 @@
 import { normalizeWidth, truncate, wrap } from "../core/ansi.js";
-import { UI_MAX_BYTES, UI_MAX_LINES, clampChars, clampUtf8, utf8Bytes } from "../core/limits.js";
+import { UI_MAX_BYTES, UI_MAX_LINES, clampChars, clampUtf8, takeLines, utf8Bytes } from "../core/limits.js";
 import type { UiTheme } from "../core/theme.js";
 import { sanitizeSgr } from "../core/safe-sgr.js";
 
@@ -52,9 +52,17 @@ export class OutputBlock {
     }
     const rows: string[] = [];
     const charCap = UI_MAX_LINES * limit;
+    let logical = 0;
     for (const row of source) {
-      const parts = row.split(/\r\n|\n/);
+      if (logical >= UI_MAX_LINES) {
+        safety = true;
+        break;
+      }
+      const limited = takeLines(row, UI_MAX_LINES - logical);
+      if (limited.truncated) safety = true;
+      const parts = limited.lines;
       if (parts.length > 1 && parts.at(-1) === "") parts.pop();
+      logical += parts.length;
       for (const raw of parts) {
         if (rows.length >= UI_MAX_LINES) {
           safety = true;
