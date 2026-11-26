@@ -34,7 +34,7 @@
 
 ## WriteView
 
-- `WriteView`（`src/views/write.ts`）：path/lineCount、head 6 与 streaming tail 12、行号、错误隐藏正文；产品 slot C 下 path 由原生 call 独占（`showPath:false`）。
+- `WriteView`（`src/views/write.ts`）：path/lineCount、head 6、行号、expanded error 显示请求正文、多行诊断安全显示。产品中 call 仅显示 path，result 独占正文；实时 streaming tail 尚未交付，标为 T4-02 限制。`write.highlight` unsupported。
 
 ## 后续
 
