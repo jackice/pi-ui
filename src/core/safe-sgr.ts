@@ -52,7 +52,7 @@ export function sanitizeSgr(text: string, ansi: boolean): string {
     }
     if (code === 0x09) continue;
     if (code < 0x20 || (code >= 0x7f && code <= 0x9f)) continue;
-    if ((code >= 0x202a && code <= 0x202e) || (code >= 0x2066 && code <= 0x2069)) continue;
+    if ((code >= 0x202a && code <= 0x202e) || (code >= 0x2066 && code <= 0x2069) || code === 0x061c || (code >= 0x200b && code <= 0x200f && code !== 0x200d) || code === 0x2060 || code === 0xfeff) continue;
     output += char;
   }
   return output;

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.1
+
+- BashView：命令由原生 call 独占、截断不再误报、fullOutputPath 净化、CRLF 归一、展示配置生效。
+- CodeBlock/OutputBlock：视觉截断提示、1 MiB/20k 行安全上限、扩展 bidi 过滤。
+- ToolCard：分区行保留白名单 SGR。
+- 新增 ToolCard/CodeBlock/BashView snapshot 与宽度/上限测试。
+
 ## 0.6.0
 
 - 新增 `ToolCard`：标题、状态 glyph、meta、分区，复用 `Panel`。

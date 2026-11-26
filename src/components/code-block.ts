@@ -44,10 +44,16 @@ export class CodeBlock {
     const all = this.props.lines;
     let selected = all;
     let hidden = 0;
+    let safety = false;
     if (!preview.expanded && preview.maxLogicalLines !== undefined) {
       const max = Math.max(0, preview.maxLogicalLines);
       hidden = Math.max(0, all.length - max);
       selected = preview.direction === "head" ? all.slice(0, max) : all.slice(all.length - max);
+    }
+    const bytes = selected.reduce((sum, line) => sum + line.text.length, 0);
+    if (selected.length > 20000 || bytes > 1024 * 1024) {
+      selected = preview.direction === "head" ? selected.slice(0, 20000) : selected.slice(selected.length - 20000);
+      safety = true;
     }
     if (selected.length === 0) return [];
 
@@ -67,12 +73,19 @@ export class CodeBlock {
       }
     }
     const maxRows = preview.expanded ? Number.POSITIVE_INFINITY : preview.maxVisualRows;
+    const visualHidden = Math.max(0, rows.length - maxRows);
     let visible = rows;
-    if (rows.length > maxRows) {
+    if (visualHidden > 0) {
       visible = preview.direction === "head" ? rows.slice(0, maxRows) : rows.slice(rows.length - maxRows);
     }
-    const summary = this.theme.fg("muted", `… ${hidden} more lines`);
-    const result = hidden > 0
+    const truncated = hidden > 0 || visualHidden > 0 || safety;
+    const summaryText = safety
+      ? "UI safety limit — available result not fully shown"
+      : hidden > 0 && visualHidden === 0
+        ? `… ${hidden} more lines`
+        : "… partial content not shown";
+    const summary = this.theme.fg("muted", summaryText);
+    const result = truncated
       ? preview.direction === "head" ? [...visible, summary] : [summary, ...visible]
       : visible;
     return result.map((row) => truncate(row, limit));

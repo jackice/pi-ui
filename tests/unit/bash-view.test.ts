@@ -71,6 +71,47 @@ describe("BashView", () => {
     }
   });
 
+  it("hides command when native call owns it", () => {
+    const lines = new BashView(plainTheme(), { model: model(), expanded: false, showCommand: false }).render(60);
+    expect(lines.join("\n")).not.toContain("pnpm test");
+  });
+
+  it("sanitizes full output path and shows byte-limit notice", () => {
+    const text = new BashView(plainTheme(), {
+      model: model({
+        output: "x",
+        truncation: { totalLines: 1, outputLines: 1, lastLinePartial: true, maxBytes: 51200 },
+        fullOutputPath: "/tmp/\u001b]52;c;Zm9v\u0007safe.log",
+      }),
+      expanded: false,
+    }).render(80).join("\n");
+    expect(text).not.toContain("\u001b]52");
+    expect(text).toContain("bytes");
+    expect(text).not.toContain("1 of 1 lines");
+  });
+
+  it("normalizes CRLF output", () => {
+    const text = new BashView(plainTheme(), {
+      model: model({ output: "alpha\r\nbeta\r\n" }),
+      expanded: false,
+    }).render(60).join("\n");
+    expect(text).toContain("alpha");
+    expect(text).toContain("beta");
+    expect(text).not.toContain("\\r");
+  });
+
+  it("honors presentation config", () => {
+    const lines = new BashView(plainTheme(), {
+      model: model({ output: Array.from({ length: 20 }, (_, i) => `row ${i + 1}`).join("\n"), cwd: "/tmp/project", durationMs: 12 }),
+      expanded: false,
+      config: { outputRows: 3, showDuration: false, showCwd: true, showTruncation: false, showFullOutputPath: false },
+    }).render(60).join("\n");
+    expect(lines).not.toContain("12ms");
+    expect(lines).toContain("/tmp/project");
+    expect(lines).toContain("row 20");
+    expect(lines).not.toContain("row 17");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new BashView(plainTheme(), { model: model(), expanded: false }).render(0)).toEqual([]);
   });

@@ -66,6 +66,10 @@ export default function (pi: ExtensionAPI) {
 | `SegmentBar` / `layoutSegmentBar` | Left/right segments, elastic center gauge, priority-based compaction, deterministic ANSI-safe layout. |
 | `renderSeparator` / `separatorText` | `ascii`, `pipe`, `slash`, `dot`, and `none` separators. |
 | `InlineGauge` | Elastic character gauge with unknown/0–100/>100 percent, label avoidance, markers, ASCII fallback, and caching. |
+| `ToolCard` | Tool title, status glyph, meta, and titled sections on a `Panel`. Rows are sanitized for control sequences while preserving whitelisted SGR. |
+| `CodeBlock` | Source lines with trusted numbers, head/tail logical and visual previews, wrapping, and safety notices. |
+| `OutputBlock` | Whitelisted SGR output, head/tail previews, CRLF normalization, bidi stripping, and 1 MiB / 20k line safety limits. |
+| `BashView` | Command/status/duration/cwd optional, tail output, truncation and full-output-path notices, with presentation config. |
 | `CodeFrame` | Old and new line numbers, diff markers and colors, visible tabs, hanging indents, and folding notices. |
 | `adaptHashlineDetails(details)` | Converts Hashline `details` version 1 to an `EditViewModel`. Returns `undefined` for unsupported versions. |
 | `EditView` | Multi-file diffs and partial, failed, or unwritten edit results, with folding and source truncation notices. |
@@ -73,6 +77,8 @@ export default function (pi: ExtensionAPI) {
 | `TodoView` | Phase progress, active task highlighting, completed and abandoned markers, collapsed future phases, and hidden task counts. |
 | `ApprovalView` | Displays the command, working directory, reason, and risk. Supports scrolling, an arming hint, and Allow once or Deny choices. |
 | `joinSides` / `rule` / `fitLine` | Layout primitives. |
+
+Tool UI component contract and gates: [docs/tool-ui-contract.md](docs/tool-ui-contract.md).
 
 Update components with `setProps` or `setTheme` and invalidate them with `invalidate()` when needed. Invalidation is idempotent. `render(width)` is synchronous, performs no I/O, and never returns a line wider than `width`.
 

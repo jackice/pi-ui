@@ -3,12 +3,15 @@ import { describe, expect, test } from "vitest";
 
 import {
   adaptHashlineDetails,
+  BashView,
+  CodeBlock,
   CodeFrame,
   EditView,
   Panel,
   plainTheme,
   StatusLine,
   TodoView,
+  ToolCard,
   type TodoViewModel,
   type UiTheme,
 } from "../../src/index.ts";
@@ -40,6 +43,41 @@ describe("snapshots", () => {
       meta: "+2 -1",
     });
     expect(text(line.render(50))).toMatchSnapshot();
+  });
+
+  test("ToolCard", () => {
+    const card = new ToolCard(plainTheme(), {
+      title: "Bash",
+      status: "success",
+      meta: ["2.8s"],
+      sections: [{ title: "Output", rows: ["Tests 128 passed", "… 2 rows hidden"] }],
+    });
+    expect(text(card.render(48))).toMatchSnapshot();
+  });
+
+  test("CodeBlock", () => {
+    const block = new CodeBlock(plainTheme(), {
+      lines: [
+        { text: "const a = 1;", number: 1 },
+        { text: "中文 emoji 🙂", number: 2 },
+      ],
+      showLineNumbers: true,
+      preview: { direction: "head", maxLogicalLines: 2, maxVisualRows: 10, expanded: false },
+    });
+    expect(text(block.render(30))).toMatchSnapshot();
+  });
+
+  test("BashView", () => {
+    const view = new BashView(plainTheme(), {
+      model: {
+        status: "success",
+        command: "pnpm test",
+        output: "Tests 128 passed",
+        durationMs: 2800,
+      },
+      expanded: false,
+    });
+    expect(text(view.render(50))).toMatchSnapshot();
   });
 
   test("CodeFrame", () => {

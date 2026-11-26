@@ -131,3 +131,10 @@ pnpm test
 pnpm build
 pnpm gallery
 ```
+
+## v0.6.0 Tool UI 组件增量
+
+- 新增 `ToolCard`、`CodeBlock`、`OutputBlock`、`BashView`，根导出与 gallery 更新。
+- 新增安全 SGR 重建、bidi 过滤、1 MiB/20k 行上限与固定安全提示。
+- 测试：127 passed（新增 4 个测试文件）。
+- npm `next=0.6.0`，`latest` 保持 `0.4.2`。

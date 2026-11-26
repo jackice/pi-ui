@@ -63,6 +63,17 @@ describe("OutputBlock", () => {
     expect(displayWidth(text)).toBeLessThanOrEqual(40);
   });
 
+  it("filters extended bidi/zero-width controls but keeps ZWJ", () => {
+    const output = sanitizeSgr("a\u200Fb\u061Cc\u200Bd\u2060e👩\u200D🚀", true);
+    expect(output).toBe("abcde👩\u200D🚀");
+  });
+
+  it("shows a safety notice for oversized input", () => {
+    const rows = Array.from({ length: 20001 }, () => "x");
+    const rendered = new OutputBlock(plainTheme(), { rows, ansi: false, preview: preview("head") }).render(30);
+    expect(rendered.join("\n")).toContain("UI safety limit");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new OutputBlock(plainTheme(), { rows: ["x"], ansi: false, preview: preview("head") }).render(0)).toEqual([]);
   });

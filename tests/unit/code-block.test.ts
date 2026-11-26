@@ -64,6 +64,26 @@ describe("CodeBlock", () => {
     expect(bare.join("\n")).not.toContain("1");
   });
 
+  it("warns when visual rows are truncated without logical limit", () => {
+    const rows = new CodeBlock(plainTheme(), {
+      lines: [{ text: "x".repeat(100), number: 1 }],
+      showLineNumbers: false,
+      preview: { direction: "head", maxVisualRows: 3, expanded: false },
+    }).render(20);
+    expect(rows.length).toBe(4);
+    expect(rows.join("\n")).toContain("partial content");
+  });
+
+  it("warns when safety limits truncate input", () => {
+    const lines = Array.from({ length: 20001 }, (_, index) => ({ text: `l${index}`, number: index + 1 }));
+    const rows = new CodeBlock(plainTheme(), {
+      lines,
+      showLineNumbers: false,
+      preview: { direction: "head", maxVisualRows: 5, expanded: true },
+    }).render(40);
+    expect(rows.join("\n")).toContain("UI safety limit");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new CodeBlock(plainTheme(), { lines, showLineNumbers: true, preview: preview("head") }).render(0)).toEqual([]);
   });

@@ -35,11 +35,29 @@ export class OutputBlock {
   render(width: number): readonly string[] {
     const limit = normalizeWidth(width);
     if (limit === 0) return [];
-    const rows: string[] = [];
+    let safety = false;
+    const source: string[] = [];
+    let bytes = 0;
     for (const row of this.props.rows) {
-      for (const logical of sanitizeSgr(row, this.props.ansi).split("\n")) {
-        rows.push(...wrap(logical, limit));
+      if (source.length >= 20000 || bytes >= 1024 * 1024) {
+        safety = true;
+        break;
       }
+      source.push(row);
+      bytes += row.length;
+    }
+    const rows: string[] = [];
+    for (const row of source) {
+      const parts = row.split(/\r\n|\n/);
+      if (parts.at(-1) === "") parts.pop();
+      for (const part of parts) {
+        if (rows.length >= 20000) {
+          safety = true;
+          break;
+        }
+        rows.push(...wrap(sanitizeSgr(part, this.props.ansi), limit));
+      }
+      if (safety) break;
     }
     if (rows.length === 0) return [];
     const shown = this.props.preview.expanded
@@ -48,8 +66,11 @@ export class OutputBlock {
         ? rows.slice(0, this.props.preview.maxVisualRows)
         : rows.slice(rows.length - this.props.preview.maxVisualRows);
     const hidden = rows.length - shown.length;
-    const summary = this.theme.fg("muted", `… ${hidden} more rows`);
-    const result = hidden > 0
+    const summaryText = safety
+      ? "UI safety limit — available result not fully shown"
+      : `… ${hidden} more rows`;
+    const summary = this.theme.fg("muted", summaryText);
+    const result = hidden > 0 || safety
       ? this.props.preview.direction === "head" ? [...shown, summary] : [summary, ...shown]
       : shown;
     return result.map((row) => truncate(row, limit));

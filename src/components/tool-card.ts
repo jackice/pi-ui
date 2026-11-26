@@ -1,4 +1,5 @@
 import { sanitizeLine, truncate } from "../core/ansi.js";
+import { sanitizeSgr } from "../core/safe-sgr.js";
 import { Panel, type Renderable } from "./panel.js";
 import type { Tone, UiTheme } from "../core/theme.js";
 
@@ -81,7 +82,7 @@ export class ToolCard {
     for (const [index, section] of sections.entries()) {
       if (index > 0) lines.push("");
       if (section.title !== undefined) lines.push(this.theme.fg("accent", truncate(sanitizeLine(section.title), width)));
-      for (const row of section.rows) lines.push(truncate(sanitizeLine(row), width));
+      for (const row of section.rows) lines.push(truncate(sanitizeSgr(row, true), width));
     }
     return lines;
   }

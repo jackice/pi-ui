@@ -1,5 +1,19 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`snapshots > BashView 1`] = `
+"╭─ Bash ─────────────────────────────── ✓ · 2.8s ╮
+│ Command                                        │
+│ $ pnpm test                                    │
+│ Output                                         │
+│ Tests 128 passed                               │
+╰────────────────────────────────────────────────╯"
+`;
+
+exports[`snapshots > CodeBlock 1`] = `
+"1 const a = 1;
+2 中文 emoji 🙂"
+`;
+
 exports[`snapshots > CodeFrame 1`] = `
 "1 │   export function run() {
 2 │ - →   return oldValue;
@@ -36,4 +50,12 @@ exports[`snapshots > TodoView 1`] = `
 │ │  └─   ○ pending                                        │
 │ └─ ▸ Phase 2  0/1                                        │
 ╰──────────────────────────────────────────────────────────╯"
+`;
+
+exports[`snapshots > ToolCard 1`] = `
+"╭─ Bash ───────────────────────────── ✓ · 2.8s ╮
+│ Output                                       │
+│ Tests 128 passed                             │
+│ … 2 rows hidden                              │
+╰──────────────────────────────────────────────╯"
 `;
