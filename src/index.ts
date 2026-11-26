@@ -46,6 +46,7 @@ export type {
   FileOperation,
 } from "./diff/types.js";
 export { EditView, type EditViewProps } from "./views/edit.js";
+export { BashView, type BashViewModel, type BashTruncation, type BashViewProps } from "./views/bash.js";
 export {
   TodoView,
   type TodoPhaseView,

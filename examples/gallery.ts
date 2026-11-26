@@ -1,5 +1,6 @@
 import {
   adaptHashlineDetails,
+  BashView,
   displayWidth,
   EditView,
   Panel,
@@ -164,6 +165,17 @@ function gallery(width: number): void {
 
   const partial = new EditView(theme, { model: partialModel, expanded: true });
   show("Edit partial fixture", partial.render(width), width);
+
+  const bash = new BashView(theme, {
+    model: {
+      status: "success",
+      command: "pnpm test",
+      output: Array.from({ length: 20 }, (_, index) => `row ${index + 1}`).join("\n"),
+      durationMs: 2800,
+    },
+    expanded: false,
+  });
+  show("Bash view fixture", bash.render(width), width);
 
   const todo = new TodoView(theme, { model: todoModel, maxLines: 14 });
   show("TODO HUD fixture", todo.render(width), width);
