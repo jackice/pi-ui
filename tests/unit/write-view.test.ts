@@ -54,6 +54,36 @@ describe("WriteView", () => {
     expect(error).not.toContain("line 1");
   });
 
+  it("shows requested content for expanded error", () => {
+    const text = new WriteView(plainTheme(), {
+      model: model({ status: "error", notices: ["EISDIR"] }),
+      expanded: true,
+    }).render(60).join("\n");
+    expect(text).toContain("line 1");
+    expect(text).toContain("EISDIR");
+  });
+
+  it("does not number a single trailing LF as an extra line", () => {
+    const text = new WriteView(plainTheme(), {
+      model: model({ content: "alpha\nbeta\n", lineCount: 2 }),
+      expanded: true,
+    }).render(40).join("\n");
+    expect(text).toContain("alpha");
+    expect(text).toContain("beta");
+    expect(text).not.toMatch(/3\s+$/m);
+  });
+
+  it("splits and truncates multiline diagnostics without breaking width", () => {
+    const lines = new WriteView(plainTheme(), {
+      model: model({ status: "error", notices: ["EACCES: permission denied\nfull stack line 2"] }),
+      expanded: false,
+    }).render(30);
+    const text = lines.join("\n");
+    expect(text).toContain("EACCES");
+    expect(text).not.toContain("\nfull stack");
+    for (const line of lines) expect(displayWidth(line)).toBeLessThanOrEqual(30);
+  });
+
   it("returns no rows for zero width", () => {
     expect(new WriteView(plainTheme(), { model: model(), expanded: false }).render(0)).toEqual([]);
   });

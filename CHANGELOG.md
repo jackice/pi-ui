@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.5
+
+- WriteView：expanded error 显示请求正文；单个尾随 LF 不多计空行；多行诊断逐行净化并保留开头。
+- Gallery 增加 Write fixture。
+
 ## 0.6.4
 
 - 新增 `WriteView`：路径/行数、head 6 行与 streaming tail 12 行、错误隐藏正文、行号与提示。

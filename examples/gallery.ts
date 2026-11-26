@@ -7,6 +7,7 @@ import {
   plainTheme,
   StatusLine,
   TodoView,
+  WriteView,
   type EditViewModel,
   type Renderable,
   type TodoViewModel,
@@ -176,6 +177,12 @@ function gallery(width: number): void {
     expanded: false,
   });
   show("Bash view fixture", bash.render(width), width);
+
+  const write = new WriteView(theme, {
+    model: { status: 'success', path: 'src/app.ts', content: Array.from({ length: 8 }, (_, index) => `line ${index + 1}`).join('\n'), argsComplete: true, lineCount: 8 },
+    expanded: false,
+  });
+  show("Write view fixture", write.render(width), width);
 
   const todo = new TodoView(theme, { model: todoModel, maxLines: 14 });
   show("TODO HUD fixture", todo.render(width), width);

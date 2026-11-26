@@ -1,4 +1,5 @@
-import { middleTruncate, sanitizeLine } from "../core/ansi.js";
+import { middleTruncate, sanitizeLine, truncate } from "../core/ansi.js";
+import { UI_MAX_LINES, takeLines } from "../core/limits.js";
 import { CodeBlock } from "../components/code-block.js";
 import { Panel } from "../components/panel.js";
 import type { Renderable } from "../core/layout.js";
@@ -70,19 +71,22 @@ export class WriteView {
       });
     }
 
-    const notices = model.notices ?? [];
+    const notices = (model.notices ?? []).flatMap((notice) => sanitizeLine(notice).split("\n"));
     if (notices.length > 0) {
       children.push({
         render: (inner: number) => notices.map((notice) => truncateNotice(this.theme, notice, inner)),
       });
     }
 
-    const showContent = model.status !== "error" && (model.content?.length ?? 0) > 0;
+    const showContent = (model.status !== "error" || expanded) && (model.content?.length ?? 0) > 0;
     if (showContent) {
       const streaming = !model.argsComplete && model.status !== "success";
       const previewLines = streaming ? config.streamingPreviewLines ?? 12 : config.previewLines ?? 6;
+      const limited = takeLines(model.content ?? "", UI_MAX_LINES);
+      const contentLines = limited.lines;
+      if (contentLines.length > 1 && contentLines.at(-1) === "" && limited.truncated === false) contentLines.pop();
       children.push(new CodeBlock(this.theme, {
-        lines: (model.content ?? "").split("\n").map((text, index) => ({ text, number: index + 1 })),
+        lines: contentLines.map((text, index) => ({ text, number: index + 1 })),
         ...(model.language === undefined ? {} : { language: model.language }),
         showLineNumbers: config.lineNumbers !== false,
         preview: {
@@ -106,5 +110,5 @@ export class WriteView {
 }
 
 function truncateNotice(theme: UiTheme, notice: string, width: number): string {
-  return theme.fg("muted", middleTruncate(sanitizeLine(notice), Math.max(1, width)));
+  return theme.fg("muted", truncate(sanitizeLine(notice), Math.max(1, width)));
 }
