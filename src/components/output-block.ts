@@ -1,6 +1,6 @@
-import { normalizeWidth, truncate, wrap } from "../core/ansi.ts";
-import type { UiTheme } from "../core/theme.ts";
-import { sanitizeSgr } from "../core/safe-sgr.ts";
+import { normalizeWidth, truncate, wrap } from "../core/ansi.js";
+import type { UiTheme } from "../core/theme.js";
+import { sanitizeSgr } from "../core/safe-sgr.js";
 
 export interface OutputPreviewPolicy {
   direction: "head" | "tail";

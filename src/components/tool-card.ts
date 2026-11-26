@@ -1,6 +1,6 @@
-import { sanitizeLine, truncate } from "../core/ansi.ts";
-import { Panel, type Renderable } from "./panel.ts";
-import type { Tone, UiTheme } from "../core/theme.ts";
+import { sanitizeLine, truncate } from "../core/ansi.js";
+import { Panel, type Renderable } from "./panel.js";
+import type { Tone, UiTheme } from "../core/theme.js";
 
 export type ToolStatus = "pending" | "streaming" | "running" | "success" | "error" | "unknown";
 

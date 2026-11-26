@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0
+
+- 新增 `ToolCard`：标题、状态 glyph、meta、分区，复用 `Panel`。
+- 新增 `CodeBlock`：可信行号、head/tail 预览、视觉折行。
+- 新增 `OutputBlock` 与安全 SGR 解析：白名单重建，剥离 OSC/CSI/控制符/bidi。
+- 新增 `BashView`：命令 6 行 head、输出 12 行 tail、截断与全量路径提示。
+- 既有 `.`、`./diff`、`./views/*` 入口与符号保持兼容。
+
 ## 0.5.1
 
 - Edit diff 改为单列行号，相邻重复行号只显示一次。删除行使用旧行号，新增行和上下文优先使用新行号。

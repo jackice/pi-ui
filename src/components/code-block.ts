@@ -1,5 +1,5 @@
-import { normalizeWidth, sanitizeLine, truncate, wrap } from "../core/ansi.ts";
-import type { UiTheme } from "../core/theme.ts";
+import { normalizeWidth, sanitizeLine, truncate, wrap } from "../core/ansi.js";
+import type { UiTheme } from "../core/theme.js";
 
 export interface SourceLine {
   text: string;

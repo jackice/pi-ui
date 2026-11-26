@@ -1,9 +1,9 @@
-import { CodeBlock } from "../components/code-block.ts";
-import { OutputBlock } from "../components/output-block.ts";
-import { Panel } from "../components/panel.ts";
-import type { Renderable } from "../core/layout.ts";
-import type { Tone, UiTheme } from "../core/theme.ts";
-import type { ToolStatus } from "../components/tool-card.ts";
+import { CodeBlock } from "../components/code-block.js";
+import { OutputBlock } from "../components/output-block.js";
+import { Panel } from "../components/panel.js";
+import type { Renderable } from "../core/layout.js";
+import type { Tone, UiTheme } from "../core/theme.js";
+import type { ToolStatus } from "../components/tool-card.js";
 
 export interface BashTruncation {
   totalLines: number;
