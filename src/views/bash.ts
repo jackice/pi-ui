@@ -63,12 +63,15 @@ export class BashView {
     this.theme = theme;
   }
 
+  invalidate(): void {
+    // 无内部缓存；宿主重绘时直接重新组合子组件。
+  }
+
   render(width: number): readonly string[] {
     const { model, expanded } = this.props;
     const status = STATUS[model.status];
     const meta: string[] = [];
     if (model.durationMs !== undefined) meta.push(formatDuration(model.durationMs));
-    if (model.cwd !== undefined) meta.push(model.cwd);
     const children: Renderable[] = [];
 
     if (model.command !== undefined && model.command.length > 0) {
