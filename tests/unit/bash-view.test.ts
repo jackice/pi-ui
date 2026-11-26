@@ -55,6 +55,22 @@ describe("BashView", () => {
     expect(lines.join("\n")).not.toContain("Output");
   });
 
+  it("keeps every line within width matrix with CJK and long command", () => {
+    const widths = [0, 1, 2, 10, 20, 40, 60, 80, 120, 160, 240];
+    const stress = {
+      status: "error" as const,
+      command: `pnpm exec 很长命令 ${"x".repeat(80)}`,
+      output: Array.from({ length: 30 }, (_, index) => `第${index + 1}行 emoji 🚀 ${"y".repeat(40)}`).join("\n"),
+      durationMs: 128000,
+      truncation: { totalLines: 2100, outputLines: 2000 },
+      fullOutputPath: "/tmp/非常长的目录/完整输出.log",
+    };
+    for (const width of widths) {
+      const lines = new BashView(plainTheme(), { model: stress, expanded: false }).render(width);
+      for (const line of lines) expect(displayWidth(line)).toBeLessThanOrEqual(width);
+    }
+  });
+
   it("returns no rows for zero width", () => {
     expect(new BashView(plainTheme(), { model: model(), expanded: false }).render(0)).toEqual([]);
   });
