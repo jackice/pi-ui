@@ -13,6 +13,7 @@ export {
 export { Panel, type PanelProps } from "./components/panel.js";
 export { ToolCard, type ToolCardProps, type ToolCardSection, type ToolStatus } from "./components/tool-card.js";
 export { CodeBlock, type CodeBlockProps, type PreviewPolicy, type SourceLine } from "./components/code-block.js";
+export { OutputBlock, type OutputBlockProps, type OutputPreviewPolicy } from "./components/output-block.js";
 export { StatusLine, type StatusLineProps } from "./components/status-line.js";
 export {
   layoutSegmentBar,
