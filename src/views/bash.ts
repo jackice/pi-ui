@@ -10,6 +10,9 @@ export interface BashTruncation {
   outputLines: number;
   totalBytes?: number;
   outputBytes?: number;
+  lastLinePartial?: boolean;
+  truncatedBy?: "lines" | "bytes";
+  maxBytes?: number;
 }
 
 export interface BashViewModel {
@@ -22,9 +25,21 @@ export interface BashViewModel {
   fullOutputPath?: string;
 }
 
+export interface BashViewConfig {
+  commandRows?: number;
+  outputRows?: number;
+  ansi?: boolean;
+  showTruncation?: boolean;
+  showFullOutputPath?: boolean;
+  showDuration?: boolean;
+  showCwd?: boolean;
+}
+
 export interface BashViewProps {
   model: BashViewModel;
   expanded: boolean;
+  config?: BashViewConfig;
+  showCommand?: boolean;
 }
 
 const STATUS: Readonly<Record<ToolStatus, { glyph: string; tone: Tone }>> = {
@@ -68,33 +83,41 @@ export class BashView {
   }
 
   render(width: number): readonly string[] {
-    const { model, expanded } = this.props;
+    const { model, expanded, config = {}, showCommand = true } = this.props;
     const status = STATUS[model.status];
     const meta: string[] = [];
-    if (model.durationMs !== undefined) meta.push(formatDuration(model.durationMs));
+    if (config.showDuration !== false && model.durationMs !== undefined) meta.push(formatDuration(model.durationMs));
+    if (config.showCwd === true && model.cwd !== undefined) meta.push(sanitizeLine(model.cwd));
     const children: Renderable[] = [];
 
-    if (model.command !== undefined && model.command.length > 0) {
+    if (showCommand && model.command !== undefined && model.command.length > 0) {
       children.push(section(this.theme, "Command", new CodeBlock(this.theme, {
         lines: [{ text: `$ ${model.command}`, number: null }],
         showLineNumbers: false,
-        preview: { direction: "head", maxVisualRows: 6, expanded },
+        preview: { direction: "head", maxVisualRows: config.commandRows ?? 6, expanded },
       })));
     }
 
     const notices: string[] = [];
-    if (model.truncation !== undefined) {
-      notices.push(`… output truncated: ${model.truncation.outputLines} of ${model.truncation.totalLines} lines`);
+    if (config.showTruncation !== false && model.truncation !== undefined) {
+      const { totalLines, outputLines, lastLinePartial, maxBytes } = model.truncation;
+      if (outputLines < totalLines) {
+        notices.push(`… output truncated: ${outputLines} of ${totalLines} lines`);
+      } else if (lastLinePartial === true) {
+        notices.push(maxBytes === undefined ? "… output truncated at byte limit" : `… output truncated at ${maxBytes} bytes`);
+      }
     }
-    if (model.fullOutputPath !== undefined) notices.push(`Full output: ${model.fullOutputPath}`);
+    if (config.showFullOutputPath !== false && model.fullOutputPath !== undefined) {
+      notices.push(`Full output: ${middleTruncate(sanitizeLine(model.fullOutputPath), 48)}`);
+    }
 
     if (model.output.length > 0 || notices.length > 0) {
       const blocks: Renderable[] = [];
       if (model.output.length > 0) {
         blocks.push(new OutputBlock(this.theme, {
-          rows: model.output.split("\n"),
-          ansi: true,
-          preview: { direction: "tail", maxVisualRows: 12, expanded },
+          rows: [model.output],
+          ansi: config.ansi !== false,
+          preview: { direction: "tail", maxVisualRows: config.outputRows ?? 12, expanded },
         }));
       }
       children.push({
