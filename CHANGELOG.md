@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3
+
+- 新增 `core/theme`、`views/bash`、`views/write`、`views/read` subpath exports，降低消费者冷启动与 RSS。
+
 ## 0.7.2
 
 - `WriteView` 高亮缓存接受 `themeRevision`，主题切换后重新计算。
