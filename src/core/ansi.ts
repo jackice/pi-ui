@@ -5,7 +5,7 @@ import {
   truncateToWidth,
   visibleWidth,
   wrapTextWithAnsi,
-} from "@earendil-works/pi-tui";
+} from "./pi-tui-compat.js";
 
 const ELLIPSIS = "…";
 const ESCAPE = "\x1b";
@@ -47,7 +47,7 @@ export function sanitizeText(text: string): string {
     .replace(/[\u200B-\u200F\u202A-\u202E\u2060\u2066-\u2069\uFEFF]/g, "");
   return withoutDcs
     .split("\n")
-    .map((line) => replaceControlCharacters(line))
+    .map((line: string) => replaceControlCharacters(line))
     .join("\n");
 }
 

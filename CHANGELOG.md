@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0
+
+- 移除 `core/ansi` 对 `@earendil-works/pi-tui` 的运行时依赖，改用 vendored 兼容实现；pi-tui 仅作测试 oracle。
+- `@earendil-works/pi-tui` peer 标记为 optional；新增 `get-east-asian-width` 依赖。
+
 ## 0.7.3
 
 - 新增 `core/theme`、`views/bash`、`views/write`、`views/read` subpath exports，降低消费者冷启动与 RSS。
