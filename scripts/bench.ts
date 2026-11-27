@@ -1,11 +1,14 @@
 import { performance } from "node:perf_hooks";
 
 import {
+  BashView,
   CodeFrame,
   EditView,
   Panel,
-  plainTheme,
+  ReadView,
   StatusLine,
+  WriteView,
+  plainTheme,
   type DiffHunk,
   type EditViewModel,
 } from "../src/index.ts";
@@ -134,6 +137,46 @@ const panelStats = measure(2000, () => {
   panel.render(80);
 });
 const status = new StatusLine(theme, { icon: "●", title: "hashline", path: "src/file.ts", meta: "+1 -1" });
+
+const bash100 = `line ${Array.from({ length: 100 }, (_, index) => index + 1).join("\nline ")}`;
+const write100 = Array.from({ length: 100 }, (_, index) => `const value${index + 1} = ${index + 1};`).join("\n");
+const read100 = Array.from({ length: 100 }, (_, index) => ({ text: `const value${index + 1} = ${index + 1};`, number: index + 1 }));
+
+const bashFirst = measure(100, () => {
+  new BashView(theme, { model: { status: "success", command: "printf 100", output: bash100, durationMs: 12 }, expanded: false }).render(80);
+});
+const bashView = new BashView(theme, { model: { status: "success", command: "printf 100", output: bash100, durationMs: 12 }, expanded: false });
+bashView.render(80);
+const bashCached = measure(1000, () => { bashView.render(80); });
+let bashWidth = 80;
+const bashResize = measure(300, () => {
+  bashWidth = bashWidth === 80 ? 120 : 80;
+  bashView.render(bashWidth);
+});
+
+const writeFirst = measure(100, () => {
+  new WriteView(theme, { model: { status: "success", path: "src/perf.ts", content: write100, argsComplete: true, lineCount: 100, language: "typescript" }, expanded: false }).render(80);
+});
+const writeView = new WriteView(theme, { model: { status: "success", path: "src/perf.ts", content: write100, argsComplete: true, lineCount: 100, language: "typescript" }, expanded: false });
+writeView.render(80);
+const writeCached = measure(1000, () => { writeView.render(80); });
+let writeWidth = 80;
+const writeResize = measure(300, () => {
+  writeWidth = writeWidth === 80 ? 120 : 80;
+  writeView.render(writeWidth);
+});
+
+const readFirst = measure(100, () => {
+  new ReadView(theme, { model: { status: "success", path: "src/perf.ts", source: "native", contentKind: "code", lines: read100, language: "typescript" }, expanded: false }).render(80);
+});
+const readView = new ReadView(theme, { model: { status: "success", path: "src/perf.ts", source: "native", contentKind: "code", lines: read100, language: "typescript" }, expanded: false });
+readView.render(80);
+const readCached = measure(1000, () => { readView.render(80); });
+let readWidth = 80;
+const readResize = measure(300, () => {
+  readWidth = readWidth === 80 ? 120 : 80;
+  readView.render(readWidth);
+});
 const statusStats = measure(5000, () => {
   status.render(80);
 });
@@ -151,3 +194,12 @@ console.log(row("EditView 1000-line first render", view1000));
 console.log(row("EditView 10000-line first render", view10000));
 console.log(row("Panel cache hit", panelStats));
 console.log(row("StatusLine cache hit", statusStats));
+console.log(row("BashView 100-line first render", bashFirst, 15));
+console.log(row("BashView 100-line cache hit", bashCached, 2));
+console.log(row("BashView 100-line resize", bashResize, 5));
+console.log(row("WriteView 100-line first render", writeFirst, 15));
+console.log(row("WriteView 100-line cache hit", writeCached, 2));
+console.log(row("WriteView 100-line resize", writeResize, 5));
+console.log(row("ReadView 100-line first render", readFirst, 15));
+console.log(row("ReadView 100-line cache hit", readCached, 2));
+console.log(row("ReadView 100-line resize", readResize, 5));
