@@ -139,8 +139,14 @@ const panelStats = measure(2000, () => {
 const status = new StatusLine(theme, { icon: "●", title: "hashline", path: "src/file.ts", meta: "+1 -1" });
 
 const bash100 = `line ${Array.from({ length: 100 }, (_, index) => index + 1).join("\nline ")}`;
+const bash1000 = `line ${Array.from({ length: 1000 }, (_, index) => index + 1).join("\nline ")}`;
+const bash10000 = `line ${Array.from({ length: 10000 }, (_, index) => index + 1).join("\nline ")}`;
 const write100 = Array.from({ length: 100 }, (_, index) => `const value${index + 1} = ${index + 1};`).join("\n");
+const write1000 = Array.from({ length: 1000 }, (_, index) => `const value${index + 1} = ${index + 1};`).join("\n");
+const write10000 = Array.from({ length: 10000 }, (_, index) => `const value${index + 1} = ${index + 1};`).join("\n");
 const read100 = Array.from({ length: 100 }, (_, index) => ({ text: `const value${index + 1} = ${index + 1};`, number: index + 1 }));
+const read1000 = Array.from({ length: 1000 }, (_, index) => ({ text: `const value${index + 1} = ${index + 1};`, number: index + 1 }));
+const read10000 = Array.from({ length: 10000 }, (_, index) => ({ text: `const value${index + 1} = ${index + 1};`, number: index + 1 }));
 
 const bashFirst = measure(100, () => {
   new BashView(theme, { model: { status: "success", command: "printf 100", output: bash100, durationMs: 12 }, expanded: false }).render(80);
@@ -200,6 +206,12 @@ console.log(row("BashView 100-line resize", bashResize, 5));
 console.log(row("WriteView 100-line first render", writeFirst, 15));
 console.log(row("WriteView 100-line cache hit", writeCached, 2));
 console.log(row("WriteView 100-line resize", writeResize, 5));
+console.log(row("WriteView 1000-line first render", measure(20, () => { new WriteView(theme, { model: { status: "success", path: "src/perf.ts", content: write1000, argsComplete: true, lineCount: 1000 }, expanded: false }).render(80); })));
+console.log(row("WriteView 10000-line first render", measure(5, () => { new WriteView(theme, { model: { status: "success", path: "src/perf.ts", content: write10000, argsComplete: true, lineCount: 10000 }, expanded: false }).render(80); })));
 console.log(row("ReadView 100-line first render", readFirst, 15));
 console.log(row("ReadView 100-line cache hit", readCached, 2));
 console.log(row("ReadView 100-line resize", readResize, 5));
+console.log(row("BashView 1000-line first render", measure(20, () => { new BashView(theme, { model: { status: "success", command: "seq 1000", output: bash1000 }, expanded: false }).render(80); })));
+console.log(row("BashView 10000-line first render", measure(5, () => { new BashView(theme, { model: { status: "success", command: "seq 10000", output: bash10000 }, expanded: false }).render(80); })));
+console.log(row("ReadView 1000-line first render", measure(20, () => { new ReadView(theme, { model: { status: "success", source: "native", contentKind: "code", lines: read1000 }, expanded: false }).render(80); })));
+console.log(row("ReadView 10000-line first render", measure(5, () => { new ReadView(theme, { model: { status: "success", source: "native", contentKind: "code", lines: read10000 }, expanded: false }).render(80); })));

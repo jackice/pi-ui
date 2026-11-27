@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+- 随包发布 LICENSE 与 vendored pi-tui 的 THIRD_PARTY_NOTICES。
+
 ## 0.8.0
 
 - 移除 `core/ansi` 对 `@earendil-works/pi-tui` 的运行时依赖，改用 vendored 兼容实现；pi-tui 仅作测试 oracle。
