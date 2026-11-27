@@ -110,6 +110,19 @@ describe("CodeBlock", () => {
     expect(rendered.join("\n")).toContain("UI safety limit");
   });
 
+  it("skips highlighting above the 10k line input limit", () => {
+    const huge = Array.from({ length: 10001 }, (_, index) => ({ text: `line ${index + 1}`, number: index + 1 }));
+    let calls = 0;
+    const rows = new CodeBlock(plainTheme(), {
+      lines: huge,
+      showLineNumbers: true,
+      highlight: (code) => { calls += 1; return code.split("\n"); },
+      preview: { direction: "head", maxVisualRows: 5, expanded: false },
+    }).render(40);
+    expect(calls).toBe(0);
+    expect(rows.join("\n")).toContain("line 1");
+  });
+
   it("returns no rows for zero width", () => {
     expect(new CodeBlock(plainTheme(), { lines, showLineNumbers: true, preview: preview("head") }).render(0)).toEqual([]);
   });

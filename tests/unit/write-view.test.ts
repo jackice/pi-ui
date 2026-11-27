@@ -64,6 +64,27 @@ describe("WriteView", () => {
     expect(calls).toBe(2);
   });
 
+  it("re-highlights when content is appended, replaced, or the path changes", () => {
+    let calls = 0;
+    const config = { highlighter: (code: string) => { calls += 1; return code.split("\n"); } };
+    const view = new WriteView(plainTheme(), {
+      model: model({ content: "alpha", lineCount: 1 }),
+      expanded: false,
+      config,
+    });
+    view.render(60);
+    expect(calls).toBe(1);
+    view.setProps({ model: model({ content: "alpha\nbeta", lineCount: 2 }), expanded: false, config });
+    expect(view.render(60).join("\n")).toContain("beta");
+    expect(calls).toBe(2);
+    view.setProps({ model: model({ content: "gamma", lineCount: 1 }), expanded: false, config });
+    expect(view.render(60).join("\n")).toContain("gamma");
+    expect(calls).toBe(3);
+    view.setProps({ model: model({ content: "gamma", lineCount: 1, path: "src/other.ts", language: "typescript" }), expanded: false, config });
+    view.render(60);
+    expect(calls).toBe(4);
+  });
+
   it("skips highlighting when the preview exceeds 256 KiB", () => {
     const long = Array.from({ length: 6 }, () => "x".repeat(50000)).join("\n");
     let calls = 0;
