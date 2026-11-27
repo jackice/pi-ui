@@ -74,7 +74,8 @@
     "bench": "tsx scripts/bench.ts",
     "bench:startup": "node scripts/startup-bench.mjs",
     "bench:heap": "node --expose-gc scripts/heap-bench.mjs",
-    "bench:coldstart": "node scripts/coldstart-bench.mjs"
+    "bench:coldstart": "node scripts/coldstart-bench.mjs",
+    "stress": "tsx scripts/stress.ts"
   },
   "peerDependencies": {
     "@earendil-works/pi-tui": "^1.6.0"
